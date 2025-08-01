@@ -1,16 +1,15 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'
-import '../global.css'
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Slot } from 'expo-router';
+import '../global.css';
 
 const Layout = () => {
-    return (
-        <SafeAreaView>
-            <Text className='text-red-500'>Hi</Text>
-        </SafeAreaView>
-    );
-}
 
-const styles = StyleSheet.create({})
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <Slot />
+    </SafeAreaView>
+  );
+};
 
 export default Layout;
