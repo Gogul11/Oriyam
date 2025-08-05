@@ -10,8 +10,8 @@ const Index = () => {
         <View>
             <Text>Landing page</Text>
             <Button 
-                onPress={() => router.replace("(auth)")}
-                title='Auth' />
+                onPress={() => router.replace("(auth)/register")}
+                title='Sign up' />
             <Button 
                 onPress={() => router.replace("(tabs)/search")}
                 title='Tabs' />
