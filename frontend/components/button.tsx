@@ -9,7 +9,7 @@ interface FormButtonProps {
     TextClassName ?: string
 }
 
-const FormButton = ({
+const CustomButton = ({
     text,
     icon,
     onPress,
@@ -31,4 +31,4 @@ const FormButton = ({
 }
 
 
-export default FormButton;
+export default CustomButton;

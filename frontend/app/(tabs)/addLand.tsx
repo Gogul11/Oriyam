@@ -16,7 +16,7 @@ import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import TextField from '../../components/form/textInput';
-import FormButton from '../../components/form/button';
+import FormButton from '../../components/button';
 import Label from '../../components/form/label';
 import { Ionicons } from '@expo/vector-icons';
 
