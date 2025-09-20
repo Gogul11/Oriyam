@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authRoutes from "./authRoutes";
+import landsRouter from "./landsRouter";
 const routes = Router()
 
 routes.get("/", (req, res) => {
@@ -8,5 +9,6 @@ routes.get("/", (req, res) => {
 
 
 routes.use("/auth",authRoutes);
+routes.use("/lands", landsRouter)
 
 export default routes;
