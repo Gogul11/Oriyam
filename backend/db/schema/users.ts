@@ -1,3 +1,4 @@
+import { getOperators } from "drizzle-orm";
 import { pgTable, varchar, integer, date, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -8,6 +9,7 @@ export const users = pgTable("users", {
   password: varchar("password", { length: 255 }).notNull(),
   age: integer("age").notNull(),
   goverment_id: varchar("goverment_id", { length: 50 }).notNull().unique(),
+  gov_id_type: varchar("gov_id_type", { length: 50 }).notNull(),
   dateofbirth: date("dateofbirth").notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),

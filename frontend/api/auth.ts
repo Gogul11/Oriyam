@@ -4,6 +4,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export const registerUser = async (userData: any) => {
   
   try {
+    console.log("Registering user with data:", userData);
     const response = await axios.post(`${API_URL}/auth/register`, userData, {
       headers: { "Content-Type": "application/json" },
     });
