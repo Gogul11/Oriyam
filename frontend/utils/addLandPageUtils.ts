@@ -38,18 +38,22 @@ export const handleSubmit = async (
         latitude: selectedLocation?.coordinates.latitude,
         longitude: selectedLocation?.coordinates.longitude,
         land_photos: images,
-        rent_price_per_month: parseFloat(values.rentPrice),
         area: parseFloat(values.area),
     };
     
     console.log('Form Data:', formData);
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
     try {
-        await axios.post('/lands/add')
+       
+        const response = await axios.post(`${apiUrl}/lands/add`, formData);
+        console.log(response.data, apiUrl);
+
         Alert.alert('Success', 'Land submitted !');
 
     } catch (error) {
         Alert.alert('Error', 'Error in registering');
+        console.log(error)
     }
 
 };
