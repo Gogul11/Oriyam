@@ -139,6 +139,35 @@ const LocationPicker = ({ onLocationSelect, currentLocation }: {
     );
 };
 
+function calculatePolygonArea(
+    coords: { latitude: number; longitude: number }[],
+    unit: string = 'sq m'
+): string {
+    if (coords.length < 3) return '0';
+
+    const R = 6378137; // Earth radius in meters
+    const pts = coords.map(p => ({
+        x: p.longitude * Math.PI / 180 * R * Math.cos(p.latitude * Math.PI / 180),
+        y: p.latitude * Math.PI / 180 * R
+    }));
+
+    let area = 0;
+    for (let i = 0; i < pts.length; i++) {
+        const j = (i + 1) % pts.length;
+        area += pts[i].x * pts[j].y - pts[j].x * pts[i].y;
+    }
+    area = Math.abs(area / 2); // in m²
+
+    switch (unit) {
+        case 'sq ft':
+            return (area * 10.7639).toFixed(2);
+        case 'acres':
+            return (area / 4046.86).toFixed(4);
+        default:
+            return area.toFixed(2); // sq m
+    }
+}
+
 // ------------------ Geocoding Function ------------------ //
 export async function fetchCoordinates(place: string): Promise<{ latitude: number; longitude: number } | null> {
     try {
@@ -259,50 +288,6 @@ const AddLandIndex = () => {
                                     />
                                     {touched.description && errors.description && (
                                         <Text className="text-red-500 text-sm">{errors.description}</Text>
-                                    )}
-                                </View>
-                            </View>
-
-                            {/* Area & Unit */}
-                            <View className="bg-gray-50 p-4 rounded-md border flex gap-4">
-                                <Text className="text-lg font-semibold text-gray-800">Area & Unit</Text>
-                                <View>
-                                    <Label text="Area" required />
-                                    <TextField
-                                        value={values.area}
-                                        onChangeText={handleChange('area')}
-                                        onBlur={handleBlur('area')}
-                                        placeholder="Area"
-                                        keyboardType="numeric"
-                                    />
-                                    {touched.area && errors.area && (
-                                        <Text className="text-red-500 text-sm">{errors.area}</Text>
-                                    )}
-                                </View>
-                                <View>
-                                    <Label text="Unit" required />
-                                    <View className="border border-gray-400 rounded-md pl-4 py-2 bg-black/10">
-                                        <Picker
-                                            selectedValue={values.unit}
-                                            onValueChange={(itemValue) => setFieldValue('unit', itemValue)}
-                                        >
-                                            <Picker.Item label="Select Unit" value="" />
-                                            <Picker.Item label="sq ft" value="sq ft" />
-                                            <Picker.Item label="acres" value="acres" />
-                                        </Picker>
-                                    </View>
-                                </View>
-                                <View>
-                                    <Label text="Rent Price" required />
-                                    <TextField
-                                        value={values.rentPrice}
-                                        onChangeText={handleChange('rentPrice')}
-                                        onBlur={handleBlur('rentPrice')}
-                                        placeholder="₹ / month"
-                                        keyboardType="numeric"
-                                    />
-                                    {touched.rentPrice && errors.rentPrice && (
-                                        <Text className="text-red-500 text-sm">{errors.rentPrice}</Text>
                                     )}
                                 </View>
                             </View>
@@ -493,7 +478,7 @@ const AddLandIndex = () => {
                                     </View>
                                 </Modal>
 
-                                {/* Display Polygon Coordinates */}
+                                {/* Display Polygon Coordinates and Area */}
                                 {selectedLocation?.polygonCoords && selectedLocation.polygonCoords.length > 0 && (
                                     <View className="mt-2 bg-gray-100 p-2 rounded">
                                         <Text className="font-semibold text-gray-700 mb-1">Polygon Coordinates:</Text>
@@ -502,16 +487,72 @@ const AddLandIndex = () => {
                                                 {idx + 1}. Lat: {point.latitude.toFixed(6)}, Lon: {point.longitude.toFixed(6)}
                                             </Text>
                                         ))}
+
+                                        {/* Calculate Area */}
+                                        <Text className="font-semibold text-gray-700 mt-2">
+                                            Area: {calculatePolygonArea(selectedLocation.polygonCoords)} m²
+                                        </Text>
                                     </View>
                                 )}
                             </View>
 
+                            {/* Area & Unit */}
+                            <View className="bg-gray-50 p-4 rounded-md border flex gap-4">
+                                <Text className="text-lg font-semibold text-gray-800">Area & Unit</Text>
+
+                                <View>
+                                    <Label text="Area" required />
+                                    <TextField
+                                        value={
+                                            selectedLocation?.polygonCoords
+                                                ? calculatePolygonArea(selectedLocation.polygonCoords, values.unit)
+                                                : values.area
+                                        }
+                                        onChangeText={handleChange('area')}
+                                        onBlur={handleBlur('area')}
+                                        placeholder="Area"
+                                        keyboardType="numeric"
+                                    />
+                                    {touched.area && errors.area && (
+                                        <Text className="text-red-500 text-sm">{errors.area}</Text>
+                                    )}
+                                </View>
+
+                                <View>
+                                    <Label text="Unit" required />
+                                    <View className="border border-gray-400 rounded-md pl-4 py-2 bg-black/10">
+                                        <Picker
+                                            selectedValue={values.unit}
+                                            onValueChange={(itemValue) => setFieldValue('unit', itemValue)}
+                                        >
+                                            <Picker.Item label="Select Unit" value="" />
+                                            <Picker.Item label="sq m" value="sq m" />
+                                            <Picker.Item label="sq ft" value="sq ft" />
+                                            <Picker.Item label="acres" value="acres" />
+                                        </Picker>
+                                    </View>
+                                </View>
+
+                                <View>
+                                    <Label text="Rent Price" required />
+                                    <TextField
+                                        value={values.rentPrice}
+                                        onChangeText={handleChange('rentPrice')}
+                                        onBlur={handleBlur('rentPrice')}
+                                        placeholder="₹ / month"
+                                        keyboardType="numeric"
+                                    />
+                                    {touched.rentPrice && errors.rentPrice && (
+                                        <Text className="text-red-500 text-sm">{errors.rentPrice}</Text>
+                                    )}
+                                </View>
+                            </View>
 
                             {/* Images */}
-                            <View className="p-4 rounded-md flex gap-4 border">
+                            {/* <View className="p-4 rounded-md flex gap-4 border">
                                 <Text className="text-lg font-semibold text-gray-800">Land Photos</Text>
                                 <ImagePickerComponent images={images} onImagesChange={setImages} />
-                            </View>
+                            </View> */}
 
                             {/* Submit */}
                             <View className="mb-12">
