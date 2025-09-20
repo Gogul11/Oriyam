@@ -1,11 +1,10 @@
 import axios from "axios";
 
-import { API_URL } from "../config/constants";
 
 export const registerUser = async (userData: any) => {
-
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL
   try {
-    const response = await axios.post(`${API_URL}/auth/register`, userData, {
+    const response = await axios.post(`${apiUrl}/auth/register`, userData, {
       headers: { "Content-Type": "application/json" },
     });
     if(!response.data) {
