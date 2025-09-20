@@ -10,6 +10,32 @@ import { eighteenYearsAgo, registerFormInitialValues, registerFormValidation } f
 import CountryPickerComponent from '../../components/form/CountryPicker';
 import { RegisterModalComponent } from '../../components/RegisterModal';
 import { router } from 'expo-router';
+import { registerUser } from '../../api/auth';
+import { calculateAge } from "../../utils/calculateAgeUtils";
+
+
+const handleRegister = async (values: any, setSubmitting: (isSubmitting: boolean) => void) => {
+  try {
+    const age = calculateAge(values.dob);
+    const payload = {
+      username: values.userName,
+      email: values.email,
+      mobile: values.mobile,
+      password: values.password,
+      age,
+      goverment_id: values.aadharCardNumber,
+      dateofbirth: values.dob,
+    };
+
+    const res = await registerUser(payload);
+    alert("✅ Registered successfully!");
+    router.push("/login");
+  } catch (err: any) {
+    alert("❌ " + err.message);
+  } finally {
+    setSubmitting(false);
+  }
+};
 
 const Index = () => {
     const [form, setForm] = useState<string>('');
@@ -26,7 +52,7 @@ const Index = () => {
                 <ScrollView contentContainerClassName='flex py-10'>
                     <Formik
                         initialValues={registerFormInitialValues}
-                        onSubmit={(values) => console.log(values)}
+                        onSubmit={(values, helpers) => handleRegister(values, helpers.setSubmitting)}
                         validationSchema={registerFormValidation}
                     >
                         {({
@@ -51,7 +77,6 @@ const Index = () => {
                                 </View>
 
 
-                                {/* UserName */}
                                 <View className='w-[90%] justify-center gap-2'>
                                     <Label text='UserName' required></Label>
                                     <TextField
@@ -63,7 +88,6 @@ const Index = () => {
                                     {errors.userName && <Text className='text-red-500'>{errors.userName}</Text>}
                                 </View>
 
-                                {/* Email  */}
                                 <View className='w-[90%] justify-center gap-2'>
                                     <Label text='Email ID'></Label>
                                     <TextField
@@ -76,7 +100,6 @@ const Index = () => {
                                     {errors.email && <Text className='text-red-500'>{errors.email}</Text>}
                                 </View>
 
-                                {/* Mobile Number  */}
                                 <View className='w-[90%] justify-center gap-2'>
                                     <Label text='Mobile Number' required></Label>
                                     <View className='flex flex-row w-full'>
@@ -108,7 +131,6 @@ const Index = () => {
                                     {errors.mobile && <Text className='text-red-500'>{errors.mobile}</Text>}
                                 </View>
 
-                                {/* Password  */}
                                 <View className='w-[90%] justify-center gap-2'>
                                     <Label text='Password' required />
                                     <TextField
@@ -122,7 +144,6 @@ const Index = () => {
                                     {errors.password && <Text className='text-red-500'>{errors.password}</Text>}
                                 </View>
 
-                                {/* Confirm Password  */}
                                 <View className='w-[90%] justify-center gap-2'>
                                     <Label text='Confirm Password' required />
                                     <TextField
@@ -136,7 +157,6 @@ const Index = () => {
                                     {errors.confirmPassword && <Text className='text-red-500'>{errors.confirmPassword}</Text>}
                                 </View>
 
-                                {/* Date of birth  */}
                                 <View className="w-[90%] justify-center gap-2">
                                     <Label text="Date of Birth" required />
                                     <TouchableOpacity
@@ -165,7 +185,6 @@ const Index = () => {
                                     {errors.dob && <Text className='text-red-500'>{errors.dob as string}</Text>}
                                 </View>
 
-                                {/* aadharCardNumber  */}
                                 <View className='w-[90%] justify-center gap-2'>
                                     <Label text='AadharCard Number' required></Label>
                                     <TextField
@@ -178,7 +197,6 @@ const Index = () => {
                                     {errors.aadharCardNumber && <Text className='text-red-500'>{errors.aadharCardNumber}</Text>}
                                 </View>
 
-                                {/* Pan Card Number  */}
                                 <View className='w-[90%] justify-center gap-2'>
                                     <Label text='PanCard Number' required></Label>
                                     <TextField
@@ -190,7 +208,6 @@ const Index = () => {
                                     {errors.panCardNumber && <Text className='text-red-500'>{errors.panCardNumber}</Text>}
                                 </View>
 
-                                {/* Voter Id  */}
                                 <View className='w-[90%] justify-center gap-2'>
                                     <Label text='VoterId Number' required></Label>
                                     <TextField
@@ -206,7 +223,6 @@ const Index = () => {
                                     <CustomButton text='View'onPress={() => setModalVisible(true)}/>
                                 </View>
 
-                                {/* Submit button  */}
                                 <View className='w-full items-center'>
                                     <CustomButton text='Register'onPress={handleSubmit}/>
                                 </View>

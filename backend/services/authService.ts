@@ -29,7 +29,9 @@ export const registerUser = async (data: RegisterInput) => {
       dateofbirth: new Date(data.dateofbirth).toISOString(),
     })
     .returning();
-
+    if(!newUser) {
+      throw new Error("User registration failed");
+    }
   return newUser;
 };
 

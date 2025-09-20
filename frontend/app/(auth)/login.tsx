@@ -35,7 +35,6 @@ const Login = () => {
                 <Text className="text-md text-gray-500 mt-1">Welcome back!</Text>
               </View>
 
-              {/* Mobile */}
               <View className="w-[90%] justify-center gap-2">
                 <Label text="Mobile Number" required />
                 <TextField
@@ -50,7 +49,6 @@ const Login = () => {
                 )}
               </View>
 
-              {/* Password */}
               <View className="w-[90%] justify-center gap-2">
                 <Label text="Password" required />
                 <TextField
@@ -66,12 +64,10 @@ const Login = () => {
                 )}
               </View>
 
-              {/* Login Button */}
               <View className="w-full items-center">
                 <CustomButton text="Login" onPress={handleSubmit} />
               </View>
 
-              {/* Redirect to Register */}
               <View className="items-center mt-4">
                 <Text className="text-md text-gray-500">Don't have an account?</Text>
                 <Text
