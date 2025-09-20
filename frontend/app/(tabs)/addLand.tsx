@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Text, 
     View, 
@@ -18,10 +18,11 @@ import TextField from '../../components/form/textInput';
 import FormButton from '../../components/button';
 import Label from '../../components/form/label';
 import { Ionicons } from '@expo/vector-icons';
-import { LandSchema, LandFormInitialValues, handleSubmit } from '../../utils/addLandPageUtils';
 import { Picker } from '@react-native-picker/picker';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import MapView, { Marker, Polygon } from 'react-native-maps';
+import tnData from '../../data/TamilNadu.json';
+import { LandSchema, LandFormInitialValues, handleSubmit } from '../../utils/addLandPageUtils';
 
 // ------------------ Image Picker ------------------ //
 const ImagePickerComponent = ({ images, onImagesChange }: { images: string[], onImagesChange: (images: string[]) => void }) => {
@@ -138,9 +139,26 @@ const LocationPicker = ({ onLocationSelect, currentLocation }: {
     );
 };
 
-// ------------------ Main Form Component ------------------ //
+// ------------------ Geocoding Function ------------------ //
+export async function fetchCoordinates(place: string): Promise<{ latitude: number; longitude: number } | null> {
+    try {
+        const response = await fetch(
+            `https://photon.komoot.io/api/?q=${encodeURIComponent(place)}&limit=1`
+        );
+        const data = await response.json();
+        if (data.features && data.features.length > 0) {
+            const [lng, lat] = data.features[0].geometry.coordinates;
+            return { latitude: lat, longitude: lng };
+        }
+        return null;
+    } catch (error) {
+        console.warn('Geocoding error:', error);
+        return null;
+    }
+}
+
+// ------------------ Main AddLand Form ------------------ //
 const AddLandIndex = () => {
-    
     const [images, setImages] = useState<string[]>([]);
     const [selectedLocation, setSelectedLocation] = useState<{
         address: string;
@@ -148,14 +166,51 @@ const AddLandIndex = () => {
         polygonCoords?: { latitude: number; longitude: number }[];
     } | null>(null);
 
+    const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+    const [selectedSubDistrict, setSelectedSubDistrict] = useState<string>('');
+    const [selectedVillage, setSelectedVillage] = useState<string>('');
+    const [mapRegion, setMapRegion] = useState<{
+        latitude: number;
+        longitude: number;
+        latitudeDelta: number;
+        longitudeDelta: number;
+    } | null>(null);
 
-
-    const [datePicker1, setShowDatePicker1] = useState<boolean>(false)
-    const [datePicker2, setShowDatePicker2] = useState<boolean>(false)
+    const [datePicker1, setShowDatePicker1] = useState(false);
+    const [datePicker2, setShowDatePicker2] = useState(false);
 
     const [showPolygonModal, setShowPolygonModal] = useState(false);
     const [polygonPoints, setPolygonPoints] = useState<{ latitude: number; longitude: number }[]>([]);
-    
+
+    const districts = tnData.districts.map((d: any) => d.district);
+    const subDistricts = selectedDistrict
+        ? tnData.districts.find((d: any) => d.district === selectedDistrict)?.subDistricts.map((sd: any) => sd.subDistrict) || []
+        : [];
+    const villages = selectedDistrict && selectedSubDistrict
+        ? tnData.districts
+              .find((d: any) => d.district === selectedDistrict)
+              ?.subDistricts.find((sd: any) => sd.subDistrict === selectedSubDistrict)
+              ?.villages || []
+        : [];
+
+    useEffect(() => {
+        const updateMapRegion = async () => {
+            if (selectedDistrict && selectedSubDistrict && selectedVillage) {
+                const place = `${selectedVillage}, ${selectedSubDistrict}, ${selectedDistrict}, Tamil Nadu`;
+                const coords = await fetchCoordinates(place);
+                if (coords) {
+                    setMapRegion({
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                        latitudeDelta: 0.05,
+                        longitudeDelta: 0.05
+                    });
+                }
+            }
+        };
+        updateMapRegion();
+    }, [selectedDistrict, selectedSubDistrict, selectedVillage]);
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -173,7 +228,7 @@ const AddLandIndex = () => {
                     validationSchema={LandSchema}
                     onSubmit={(values) => handleSubmit(values, selectedLocation, images)}
                 >
-                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched , setFieldValue}) => (
+                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
                         <View className="flex gap-2">
                             
                             {/* Basic Info */}
@@ -227,7 +282,6 @@ const AddLandIndex = () => {
                                 <View>
                                     <Label text="Unit" required />
                                     <View className="border border-gray-400 rounded-md pl-4 py-2 bg-black/10">
-                                        
                                         <Picker
                                             selectedValue={values.unit}
                                             onValueChange={(itemValue) => setFieldValue('unit', itemValue)}
@@ -256,7 +310,6 @@ const AddLandIndex = () => {
                             {/* Rent & Soil/Water */}
                             <View className="p-4 rounded-md flex gap-4 border">
                                 <Text className="text-lg font-semibold text-gray-800">Land Details</Text>
-                                
                                 <View className="flex-1">
                                     <Label text="Soil Type" required />
                                     <TextField
@@ -288,18 +341,14 @@ const AddLandIndex = () => {
                                 <Text className="text-lg font-semibold text-gray-800">Availability</Text>
                                 <View>
                                     <Label text="From" required />
-
                                     <TouchableOpacity
                                         className="p-3 border border-gray-300 rounded-md bg-black/10"
                                         onPress={() => setShowDatePicker1(true)}
                                     >
                                         <Text>
-                                            {values.availabilityFrom
-                                                ? values.availabilityFrom.toDateString()
-                                                : "Select availability start"}
+                                            {values.availabilityFrom ? values.availabilityFrom.toDateString() : "Select availability start"}
                                         </Text>
                                     </TouchableOpacity>
-
                                     {datePicker1 && (
                                         <RNDateTimePicker
                                             mode="date"
@@ -307,27 +356,21 @@ const AddLandIndex = () => {
                                             minimumDate={new Date()}
                                             onChange={(event, selectedDate) => {
                                                 setShowDatePicker1(false);
-                                                if (selectedDate) {
-                                                    setFieldValue("availabilityFrom", selectedDate);
-                                                }
+                                                if (selectedDate) setFieldValue("availabilityFrom", selectedDate);
                                             }}
                                         />
                                     )}
                                 </View>
                                 <View>
                                     <Label text="To" required />
-
                                     <TouchableOpacity
                                         className="p-3 border border-gray-300 rounded-md bg-black/10"
                                         onPress={() => setShowDatePicker2(true)}
                                     >
                                         <Text>
-                                            {values.availabilityTo
-                                                ? values.availabilityTo.toDateString()
-                                                : "Select Date of Birth"}
+                                            {values.availabilityTo ? values.availabilityTo.toDateString() : "Select availability end"}
                                         </Text>
                                     </TouchableOpacity>
-
                                     {datePicker2 && (
                                         <RNDateTimePicker
                                             mode="date"
@@ -335,37 +378,64 @@ const AddLandIndex = () => {
                                             minimumDate={values.availabilityFrom}
                                             onChange={(event, selectedDate) => {
                                                 setShowDatePicker2(false);
-                                                if (selectedDate) {
-                                                    setFieldValue("availabilityTo", selectedDate);
-                                                }
+                                                if (selectedDate) setFieldValue("availabilityTo", selectedDate);
                                             }}
                                         />
                                     )}
                                 </View>
                             </View>
 
-                            {/* Location */}
+                            {/* Location & Village Selection */}
                             <View className="p-4 rounded-md flex gap-4 border">
                                 <Text className="text-lg font-semibold text-gray-800">Location</Text>
-                                <LocationPicker
-                                    onLocationSelect={(loc) => setSelectedLocation(loc)}
-                                    currentLocation={selectedLocation}
-                                />
-                                <TextField
-                                    value={selectedLocation ? selectedLocation.address : values.location}
-                                    onChangeText={handleChange('location')}
-                                    placeholder="City, State"
-                                />
-                                {touched.location && errors.location && (
-                                    <Text className="text-red-500 text-sm">{errors.location}</Text>
-                                )}
+
+                                {/* District */}
+                                <Label text="District" required />
+                                <View className="border border-gray-400 rounded-md bg-black/10">
+                                    <Picker
+                                        selectedValue={selectedDistrict}
+                                        onValueChange={(value) => {
+                                            setSelectedDistrict(value);
+                                            setSelectedSubDistrict('');
+                                            setSelectedVillage('');
+                                        }}
+                                    >
+                                        <Picker.Item label="Select District" value="" />
+                                        {districts.map(d => <Picker.Item key={d} label={d} value={d} />)}
+                                    </Picker>
+                                </View>
+
+                                {/* Sub-District */}
+                                <Label text="Sub-District" required />
+                                <View className="border border-gray-400 rounded-md bg-black/10">
+                                    <Picker
+                                        selectedValue={selectedSubDistrict}
+                                        onValueChange={(value) => {
+                                            setSelectedSubDistrict(value);
+                                            setSelectedVillage('');
+                                        }}
+                                    >
+                                        <Picker.Item label="Select Sub-District" value="" />
+                                        {subDistricts.map(sd => <Picker.Item key={sd} label={sd} value={sd} />)}
+                                    </Picker>
+                                </View>
+
+                                {/* Village */}
+                                <Label text="Village" required />
+                                <View className="border border-gray-400 rounded-md bg-black/10">
+                                    <Picker
+                                        selectedValue={selectedVillage}
+                                        onValueChange={value => setSelectedVillage(value)}
+                                    >
+                                        <Picker.Item label="Select Village" value="" />
+                                        {villages.map(v => <Picker.Item key={v} label={v} value={v} />)}
+                                    </Picker>
+                                </View>
                             </View>
 
-                            {/* Location / Polygon Picker */}
+                            {/* Polygon Picker */}
                             <View className="p-4 rounded-md flex gap-4 border">
                                 <Text className="text-lg font-semibold text-gray-800">Land Polygon</Text>
-
-                                {/* Map Polygon Picker Button */}
                                 <TouchableOpacity
                                     onPress={() => setShowPolygonModal(true)}
                                     className="flex-row items-center bg-blue-500 px-3 py-2 rounded-md"
@@ -374,30 +444,25 @@ const AddLandIndex = () => {
                                     <Text className="text-white text-sm ml-2">Select Land Polygon</Text>
                                 </TouchableOpacity>
 
-                                {/* Modal with Map */}
                                 <Modal visible={showPolygonModal} animationType="slide">
                                     <View style={{ flex: 1 }}>
-                                        <MapView
-                                            style={{ flex: 1 }}
-                                            initialRegion={{
-                                                latitude: 13.0827, // default latitude
-                                                longitude: 80.2707, // default longitude
-                                                latitudeDelta: 0.05,
-                                                longitudeDelta: 0.05,
-                                            }}
-                                            onPress={(e) => {
-                                                const { latitude, longitude } = e.nativeEvent.coordinate;
-                                                setPolygonPoints([...polygonPoints, { latitude, longitude }]);
-                                            }}
-                                        >
-                                            {polygonPoints.map((point, idx) => (
-                                                <Marker key={idx} coordinate={point} />
-                                            ))}
-                                            {polygonPoints.length >= 3 && (
-                                                <Polygon coordinates={polygonPoints} fillColor="rgba(0,150,255,0.3)" />
-                                            )}
-                                        </MapView>
-
+                                        {mapRegion && (
+                                            <MapView
+                                                style={{ flex: 1 }}
+                                                region={mapRegion}
+                                                onPress={(e) => {
+                                                    const { latitude, longitude } = e.nativeEvent.coordinate;
+                                                    setPolygonPoints([...polygonPoints, { latitude, longitude }]);
+                                                }}
+                                            >
+                                                {polygonPoints.map((point, idx) => (
+                                                    <Marker key={idx} coordinate={point} />
+                                                ))}
+                                                {polygonPoints.length >= 3 && (
+                                                    <Polygon coordinates={polygonPoints} fillColor="rgba(0,150,255,0.3)" />
+                                                )}
+                                            </MapView>
+                                        )}
                                         <View className="flex-row justify-around p-4 bg-white">
                                             <TouchableOpacity onPress={() => setPolygonPoints([])} className="px-4 py-2 bg-red-500 rounded">
                                                 <Text className="text-white font-semibold">Reset</Text>
@@ -409,7 +474,9 @@ const AddLandIndex = () => {
                                                         return;
                                                     }
                                                     setSelectedLocation({
-                                                        address: 'Polygon Selected',
+                                                        address: selectedVillage
+                                                            ? `${selectedVillage}, ${selectedSubDistrict}, ${selectedDistrict}`
+                                                            : 'Polygon Selected',
                                                         coordinates: polygonPoints[0],
                                                         polygonCoords: polygonPoints,
                                                     });
@@ -426,26 +493,25 @@ const AddLandIndex = () => {
                                     </View>
                                 </Modal>
 
-                               {/* Polygon Info Display */}
-                                    {selectedLocation && selectedLocation.polygonCoords && (
-                                        <View className="bg-green-50 p-2 rounded-md mt-2">
-                                            <Text className="text-green-800 text-sm">
-                                                Selected Polygon Coordinates:
+                                {/* Display Polygon Coordinates */}
+                                {selectedLocation?.polygonCoords && selectedLocation.polygonCoords.length > 0 && (
+                                    <View className="mt-2 bg-gray-100 p-2 rounded">
+                                        <Text className="font-semibold text-gray-700 mb-1">Polygon Coordinates:</Text>
+                                        {selectedLocation.polygonCoords.map((point, idx) => (
+                                            <Text key={idx} className="text-sm text-gray-600">
+                                                {idx + 1}. Lat: {point.latitude.toFixed(6)}, Lon: {point.longitude.toFixed(6)}
                                             </Text>
-                                            {selectedLocation.polygonCoords.map((point, idx) => (
-                                                <Text key={idx} className="text-green-800 text-xs">
-                                                    {`Point ${idx + 1}: Lat ${point.latitude.toFixed(6)}, Lon ${point.longitude.toFixed(6)}`}
-                                                </Text>
-                                            ))}
-                                        </View>
-                                    )}
+                                        ))}
+                                    </View>
+                                )}
                             </View>
 
+
                             {/* Images */}
-                            {/* <View className="p-4 rounded-md flex gap-4 border">
+                            <View className="p-4 rounded-md flex gap-4 border">
                                 <Text className="text-lg font-semibold text-gray-800">Land Photos</Text>
                                 <ImagePickerComponent images={images} onImagesChange={setImages} />
-                            </View> */}
+                            </View>
 
                             {/* Submit */}
                             <View className="mb-12">
@@ -456,13 +522,11 @@ const AddLandIndex = () => {
                                     TextClassName="text-white text-lg font-semibold"
                                 />
                             </View>
-
                         </View>
                     )}
                 </Formik>
             </ScrollView>
         </KeyboardAvoidingView>
-
     );
 };
 
