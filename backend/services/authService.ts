@@ -12,6 +12,7 @@ type RegisterInput = {
   age: number;
   goverment_id: string;
   dateofbirth: string | Date;
+  gov_id_type: string;
 };
 
 export const registerUser = async (data: RegisterInput) => {
@@ -26,6 +27,7 @@ export const registerUser = async (data: RegisterInput) => {
       password: hashedPassword,
       age: data.age,
       goverment_id: data.goverment_id,
+      gov_id_type: data.gov_id_type,
       dateofbirth: new Date(data.dateofbirth).toISOString(),
     })
     .returning();
@@ -35,7 +37,7 @@ export const registerUser = async (data: RegisterInput) => {
   return newUser;
 };
 
-export const findUserByEmail = async (email: string) => {
-  const [user] = await db.select().from(users).where(eq(users.email, email));
+export const findUserByMobile = async (mobile: string) => {
+  const [user] = await db.select().from(users).where(eq(users.mobile, mobile));
   return user;
 };
