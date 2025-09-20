@@ -8,7 +8,8 @@ import {
     Alert, 
     Platform,
     Linking,
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
+    Modal
 } from 'react-native';
 import { Formik } from 'formik';
 import * as ImagePicker from 'expo-image-picker';
@@ -20,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LandSchema, LandFormInitialValues, handleSubmit } from '../../utils/addLandPageUtils';
 import { Picker } from '@react-native-picker/picker';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
+import MapView, { Marker, Polygon } from 'react-native-maps';
 
 // ------------------ Image Picker ------------------ //
 const ImagePickerComponent = ({ images, onImagesChange }: { images: string[], onImagesChange: (images: string[]) => void }) => {
@@ -140,14 +142,20 @@ const LocationPicker = ({ onLocationSelect, currentLocation }: {
 const AddLandIndex = () => {
     
     const [images, setImages] = useState<string[]>([]);
-    const [selectedLocation, setSelectedLocation] = useState<{ address: string; coordinates: { latitude: number; longitude: number } } | null>(null);
+    const [selectedLocation, setSelectedLocation] = useState<{
+        address: string;
+        coordinates: { latitude: number; longitude: number };
+        polygonCoords?: { latitude: number; longitude: number }[];
+    } | null>(null);
 
 
 
     const [datePicker1, setShowDatePicker1] = useState<boolean>(false)
     const [datePicker2, setShowDatePicker2] = useState<boolean>(false)
-    
 
+    const [showPolygonModal, setShowPolygonModal] = useState(false);
+    const [polygonPoints, setPolygonPoints] = useState<{ latitude: number; longitude: number }[]>([]);
+    
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -351,6 +359,86 @@ const AddLandIndex = () => {
                                 {touched.location && errors.location && (
                                     <Text className="text-red-500 text-sm">{errors.location}</Text>
                                 )}
+                            </View>
+
+                            {/* Location / Polygon Picker */}
+                            <View className="p-4 rounded-md flex gap-4 border">
+                                <Text className="text-lg font-semibold text-gray-800">Land Polygon</Text>
+
+                                {/* Map Polygon Picker Button */}
+                                <TouchableOpacity
+                                    onPress={() => setShowPolygonModal(true)}
+                                    className="flex-row items-center bg-blue-500 px-3 py-2 rounded-md"
+                                >
+                                    <Ionicons name="map" size={16} color="white" />
+                                    <Text className="text-white text-sm ml-2">Select Land Polygon</Text>
+                                </TouchableOpacity>
+
+                                {/* Modal with Map */}
+                                <Modal visible={showPolygonModal} animationType="slide">
+                                    <View style={{ flex: 1 }}>
+                                        <MapView
+                                            style={{ flex: 1 }}
+                                            initialRegion={{
+                                                latitude: 13.0827, // default latitude
+                                                longitude: 80.2707, // default longitude
+                                                latitudeDelta: 0.05,
+                                                longitudeDelta: 0.05,
+                                            }}
+                                            onPress={(e) => {
+                                                const { latitude, longitude } = e.nativeEvent.coordinate;
+                                                setPolygonPoints([...polygonPoints, { latitude, longitude }]);
+                                            }}
+                                        >
+                                            {polygonPoints.map((point, idx) => (
+                                                <Marker key={idx} coordinate={point} />
+                                            ))}
+                                            {polygonPoints.length >= 3 && (
+                                                <Polygon coordinates={polygonPoints} fillColor="rgba(0,150,255,0.3)" />
+                                            )}
+                                        </MapView>
+
+                                        <View className="flex-row justify-around p-4 bg-white">
+                                            <TouchableOpacity onPress={() => setPolygonPoints([])} className="px-4 py-2 bg-red-500 rounded">
+                                                <Text className="text-white font-semibold">Reset</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    if (polygonPoints.length < 3) {
+                                                        Alert.alert('Polygon Error', 'Please select at least 3 points');
+                                                        return;
+                                                    }
+                                                    setSelectedLocation({
+                                                        address: 'Polygon Selected',
+                                                        coordinates: polygonPoints[0],
+                                                        polygonCoords: polygonPoints,
+                                                    });
+                                                    setShowPolygonModal(false);
+                                                }}
+                                                className="px-4 py-2 bg-green-500 rounded"
+                                            >
+                                                <Text className="text-white font-semibold">Save Polygon</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => setShowPolygonModal(false)} className="px-4 py-2 bg-gray-400 rounded">
+                                                <Text className="text-white font-semibold">Cancel</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </Modal>
+
+                               {/* Polygon Info Display */}
+                                    {selectedLocation && selectedLocation.polygonCoords && (
+                                        <View className="bg-green-50 p-2 rounded-md mt-2">
+                                            <Text className="text-green-800 text-sm">
+                                                Selected Polygon Coordinates:
+                                            </Text>
+                                            {selectedLocation.polygonCoords.map((point, idx) => (
+                                                <Text key={idx} className="text-green-800 text-xs">
+                                                    {`Point ${idx + 1}: Lat ${point.latitude.toFixed(6)}, Lon ${point.longitude.toFixed(6)}`}
+                                                </Text>
+                                            ))}
+                                        </View>
+                                    )}
                             </View>
 
                             {/* Images */}
