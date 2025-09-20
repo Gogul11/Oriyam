@@ -5,7 +5,7 @@ import cors from "cors"
 import { startDb } from './db/connection';
 import routes from './routes';
 
-const port = 3000;
+const port = 5000;
 
 const app: Application = express();
 const server = createServer(app);
@@ -18,7 +18,7 @@ const boot = async () => {
 
     app.use(express.json())
     app.use(cors())
-    app.use("/", routes)
+    app.use("/api", routes)
 
     io.on('connection', (socket) => {
       console.log('user connected');
