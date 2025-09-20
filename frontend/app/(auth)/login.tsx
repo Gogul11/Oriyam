@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import TextField from '../../components/form/textInput';
@@ -7,7 +7,29 @@ import Label from '../../components/form/label';
 import CustomButton from '../../components/button';
 import { router } from 'expo-router';
 import { loginFormInitialValues, loginFormValidation } from '../../utils/loginPageUtils';
+import { loginUser } from '../../api/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
+const handleLogin = async (values: any) => {
+    try {
+      console.log("Login Values:", values);
+
+      const data = await loginUser(values.mobile, values.password);
+
+      await AsyncStorage.setItem('authToken', data.token);
+      console.log("Token saved:", data.token);
+
+      Alert.alert("Success", data.message);
+      console.log("User:", data.user);
+
+      router.push('/search');
+
+    } catch (error: any) {
+      Alert.alert("Login Failed", error.message);
+    }
+};
+  
 const Login = () => {
   return (
     <KeyboardAvoidingView
@@ -18,9 +40,7 @@ const Login = () => {
         <Formik
           initialValues={loginFormInitialValues}
           validationSchema={loginFormValidation}
-          onSubmit={(values) => {
-            console.log("Login Values:", values);
-          }}
+          onSubmit={handleLogin}
         >
           {({
             handleChange,

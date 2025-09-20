@@ -35,7 +35,7 @@ export const registerUser = async (data: RegisterInput) => {
   return newUser;
 };
 
-export const findUserByEmail = async (email: string) => {
-  const [user] = await db.select().from(users).where(eq(users.email, email));
+export const findUserByMobile = async (mobile: string) => {
+  const [user] = await db.select().from(users).where(eq(users.mobile, mobile));
   return user;
 };
