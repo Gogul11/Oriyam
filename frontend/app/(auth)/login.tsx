@@ -20,9 +20,6 @@ const handleLogin = async (values: any) => {
 
       // await AsyncStorage.setItem('authToken', data.token);
       userStore.getState().setToken(data.token)
-      console.log("Token saved:", data.token);
-
-      Alert.alert("Logged in success fully")
 
       router.push('/search');
 
@@ -87,6 +84,15 @@ const Login = () => {
 
               <View className="w-full items-center">
                 <CustomButton text="Login" onPress={handleSubmit} />
+              </View>
+
+              <View className="items-center mt-2">
+                <Text
+                  className="text-md text-blue-600 underline"
+                  onPress={() => router.push("/forgot-password")}
+                >
+                  Forgot Password?
+                </Text>
               </View>
 
               <View className="items-center mt-4">
