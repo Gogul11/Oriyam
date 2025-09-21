@@ -15,6 +15,7 @@ import {
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import { getUserProfile, updateUserProfile } from "../../api/profile";
 import { userStore } from "../../stores/userStore";
+import { useRouter } from "expo-router";
 
 interface Land {
   landId: string;
@@ -54,6 +55,7 @@ const ProfileScreen = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const router = useRouter();
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -221,25 +223,35 @@ const ProfileScreen = () => {
         )}
       </View>
 
-      <Text style={styles.subheading}>Owned Lands</Text>
+       <Text style={styles.subheading}>Owned Lands</Text>
       {profile.lands && profile.lands.length > 0 ? (
         profile.lands.map((item) => (
-          <TouchableOpacity
-            key={item.landId}
-            style={styles.card}
-            onPress={() => setSelectedLand(item)}
-          >
-            <Text style={styles.landTitle}>{item.title}</Text>
-            <Text style={styles.landDescription}>{item.description}</Text>
-            <Text
-              style={[
-                styles.status,
-                item.status ? styles.available : styles.notAvailable,
-              ]}
+          <View key={item.landId} style={{ marginBottom: 10 }}>
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => setSelectedLand(item)}
             >
-              {item.status ? "Available" : "Not Available"}
-            </Text>
-          </TouchableOpacity>
+              <Text style={styles.landTitle}>{item.title}</Text>
+              <Text style={styles.landDescription}>{item.description}</Text>
+              <Text style={[styles.status, item.status ? styles.available : styles.notAvailable]}>
+                {item.status ? "Available" : "Not Available"}
+              </Text>
+            <TouchableOpacity style={styles.interestBtn}
+                onPress={() =>
+                  router.push({
+                    pathname: "landInterest",
+                    params: {
+                      landId: item.landId,    
+                      title: item.title,       
+                      district: item.district,  
+                    },
+                  })
+                }
+              >
+                <Text style={styles.interestBtnText}>View Interests</Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         ))
       ) : (
         <Text style={styles.error}>No lands found</Text>
@@ -400,6 +412,8 @@ const styles = StyleSheet.create({
   notAvailable: { color: "#c62828", backgroundColor: "#ffcdd2", paddingVertical: 3, paddingHorizontal: 8, borderRadius: 6, alignSelf: "flex-end" },
   closeBtn: { backgroundColor: "#2e7d32", padding: 12, borderRadius: 8, marginTop: 16 },
   closeBtnText: { color: "#fff", fontWeight: "700", textAlign: "center", fontSize: 15 },
+  interestBtn: { backgroundColor: "#4caf50", padding: 10, borderRadius: 8, marginTop: 5, marginHorizontal: 5 },
+  interestBtnText: { color: "#fff", fontWeight: "700", textAlign: "center" },
 });
 
 export default ProfileScreen;
