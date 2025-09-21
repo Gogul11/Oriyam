@@ -2,6 +2,7 @@ import { Router } from "express";
 import authRoutes from "./authRoutes";
 import landsRouter from "./landsRouter";
 import { verifyToken } from "../middleware/verify";
+import forgotPasswordRoutes from "./forgotPasswordRoutes";
 const routes = Router()
 
 routes.get("/", (req, res) => {
@@ -11,5 +12,6 @@ routes.get("/", (req, res) => {
 
 routes.use("/auth",authRoutes);
 routes.use("/lands", verifyToken,landsRouter)
+routes.use("/forgot-password", forgotPasswordRoutes);
 
 export default routes;
