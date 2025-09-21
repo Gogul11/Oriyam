@@ -1,7 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, Image, ScrollView, FlatList, useWindowDimensions } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { type Land } from '../utils/viewLandsPageUtils';
+import CustomButton from '../components/button';
+import InterestForm from '../components/intrestForm';
+import { handleIntrestSubmit } from '../utils/landDetatilsPageUtils';
 
 type RootStackParamList = {
   Search: undefined;
@@ -22,8 +25,11 @@ const LandDetails = () => {
   const { land } = route.params;
   const { width } = useWindowDimensions();
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [submittedData, setSubmittedData] = useState<any>(null);
+
   return (
-    <ScrollView className="flex-1 bg-white">
+    <ScrollView className="flex-1 bg-[#e8f5e9] p-2">
       <FlatList
         data={land.photos}
         keyExtractor={(photoUrl) => photoUrl}
@@ -56,6 +62,20 @@ const LandDetails = () => {
           <DetailRow label="Available From" value={land.availabilityFrom} />
           <DetailRow label="Available To" value={land.availabilityTo} />
           <DetailRow label="Status" value={land.status ? 'Available' : 'Not Available'} />
+        </View>
+
+        <View>
+          <InterestForm
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            onSubmit={(data) => handleIntrestSubmit(data, land.landId)}
+          />
+          <CustomButton
+            text="Show Interest"
+            onPress={() => setModalVisible(true)}
+            ButtonClassName="border border-green-600 w-full py-3 my-4 rounded-2xl"
+            TextClassName="text-green-700 text-center text-lg font-semibold"
+          ></CustomButton>
         </View>
       </View>
     </ScrollView>
