@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import cors from "cors"
 import { startDb } from './db/connection';
 import routes from './routes';
+import { initCloudFlare } from './db/cloudFlare';
 
 const port = 5000;
 
@@ -15,6 +16,7 @@ const boot = async () => {
   try {
   
     await startDb();
+    await initCloudFlare()
 
     app.use(express.json())
     app.use(cors())
