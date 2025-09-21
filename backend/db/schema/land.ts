@@ -1,27 +1,25 @@
-import { pgTable, varchar, bigint, date, decimal, boolean } from "drizzle-orm/pg-core";
+import { pgTable, varchar, bigint, date, decimal, boolean, uuid} from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const land = pgTable("land", {
-    landId: varchar("land_id", { length: 255 }).notNull().primaryKey(),
-    userId: varchar("user_id", { length: 255 }).notNull().references(() => users.user_id, {onDelete : "cascade"}),
+    landId: uuid("landId").defaultRandom().notNull().primaryKey(),
+    userId: uuid("userId").notNull().references(() => users.user_id, {onDelete : "cascade"}),
 
     title: varchar("title", { length: 255 }).notNull(),
     description: varchar("description", { length: 255 }).notNull(),
 
     area: varchar("area", { length: 20 }).notNull(),    
     unit: varchar("unit", { length: 255 }).notNull(),
-    rent_price_per_month: decimal("rent_price_per_month", { precision: 8, scale: 2 }).notNull(),
+    rentPricePerMonth: decimal("rentPricePerMonth", { precision: 8, scale: 2 }).notNull(),
 
-    soilType: varchar("soil_type", { length: 255 }).notNull(),
-    waterSource: varchar("water_source", { length: 255 }).notNull(),
+    soilType: varchar("soilType", { length: 255 }).notNull(),
+    waterSource: varchar("waterSource", { length: 255 }).notNull(),
 
-    availabilityFrom: date("availability_from").notNull(),
-    availabilityTo: date("availability_to").notNull(),
+    availabilityFrom: date("availabilityFrom").notNull(),
+    availabilityTo: date("availabilityTo").notNull(),
 
-    location: varchar("location", { length: 255 }).notNull(),
-    latitude: decimal("latitude", { precision: 8, scale: 2 }),
-    longitude: decimal("longitude", { precision: 8, scale: 2 }),
-    coordinates: varchar("coordinates", { length: 255 }).unique(),
+    coordinates: varchar("coordinates", { length: 255 }).unique().array(),
+    photos : varchar("photos", {length : 255}).array(),
 
     status: boolean("status").notNull().default(true),
     
