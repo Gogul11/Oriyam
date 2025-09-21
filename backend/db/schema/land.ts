@@ -1,4 +1,4 @@
-import { pgTable, varchar, bigint, date, decimal, boolean, uuid} from "drizzle-orm/pg-core";
+import { pgTable, varchar, bigint, date, decimal, boolean, uuid, jsonb} from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const land = pgTable("land", {
@@ -18,12 +18,18 @@ export const land = pgTable("land", {
     availabilityFrom: date("availabilityFrom").notNull(),
     availabilityTo: date("availabilityTo").notNull(),
 
-    coordinates: varchar("coordinates", { length: 255 }).unique().array(),
+    district : varchar("district", {length : 255}).notNull(),
+    subDistrict : varchar("subDistrict", {length : 255}).notNull(),
+    village : varchar("village", {length : 255}).notNull(),
+
+    coordinates: jsonb("coordinates").$type<
+    { latitude: number; longitude: number }[]
+  >(),
     photos : varchar("photos", {length : 255}).array(),
 
     status: boolean("status").notNull().default(true),
     
-    created_at: date("created_at").notNull(),
-    updated_at: date("updated_at").notNull(),
+    created_at: date("created_at").notNull().defaultNow(),
+    updated_at: date("updated_at").notNull().defaultNow(),
     // land_photos: varchar("land_photos", { length: 1000 }).notNull(), // URLs stored as string
 });

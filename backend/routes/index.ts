@@ -1,6 +1,7 @@
 import { Router } from "express";
 import authRoutes from "./authRoutes";
 import landsRouter from "./landsRouter";
+import { verifyToken } from "../middleware/verify";
 const routes = Router()
 
 routes.get("/", (req, res) => {
@@ -9,6 +10,6 @@ routes.get("/", (req, res) => {
 
 
 routes.use("/auth",authRoutes);
-routes.use("/lands", landsRouter)
+routes.use("/lands", verifyToken,landsRouter)
 
 export default routes;
