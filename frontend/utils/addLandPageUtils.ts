@@ -7,7 +7,6 @@ export const LandSchema = Yup.object().shape({
     description: Yup.string().required('Description is required'),
     area: Yup.number().positive('Area must be positive').required('Area is required'),
     unit: Yup.string().required('Unit is required'),
-    location: Yup.string().required('Location is required'),
     soilType: Yup.string().required('Soil type is required'),
     waterSource: Yup.string().required('Water source is required'),
     rentPrice: Yup.number().positive('Rent price must be positive').required('Rent price is required'),
@@ -26,6 +25,9 @@ export const LandFormInitialValues = {
         availabilityFrom: new Date(),
         availabilityTo: new Date(),
         rentPrice: '',
+        district : '',
+        subDistrict : '',
+        village : ''
 };
 
 export const handleSubmit = async (
@@ -35,8 +37,7 @@ export const handleSubmit = async (
 ) => {
     const formData = {
         ...values,
-        latitude: selectedLocation?.coordinates.latitude,
-        longitude: selectedLocation?.coordinates.longitude,
+        selectedLocation,
         land_photos: images,
         area: parseFloat(values.area),
     };
@@ -44,17 +45,17 @@ export const handleSubmit = async (
     console.log('Form Data:', formData);
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-    try {
+    // try {
        
-        const response = await axios.post(`${apiUrl}/lands/add`, formData);
-        console.log(response.data, apiUrl);
+    //     const response = await axios.post(`${apiUrl}/lands/add`, formData);
+    //     console.log(response.data, apiUrl);
 
-        Alert.alert('Success', 'Land submitted !');
+    //     Alert.alert('Success', 'Land submitted !');
 
-    } catch (error) {
-        Alert.alert('Error', 'Error in registering');
-        console.log(error)
-    }
+    // } catch (error) {
+    //     Alert.alert('Error', 'Error in registering');
+    //     console.log(error)
+    // }
 
 };
 
