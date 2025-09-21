@@ -210,7 +210,11 @@ const AddLandIndex = () => {
                 <Formik
                     initialValues={LandFormInitialValues}
                     validationSchema={LandSchema}
-                    onSubmit={(values) => handleSubmit(values, selectedLocation, images)}
+                    onSubmit={(values, {resetForm}) => {
+                        handleSubmit(values, selectedLocation, images)
+                        resetForm()
+                    }}
+                    
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => {
                         
@@ -512,14 +516,14 @@ const AddLandIndex = () => {
                                     <View>
                                         <Label text="Rent Price" required />
                                         <TextField
-                                            value={values.rentPrice}
-                                            onChangeText={handleChange('rentPrice')}
-                                            onBlur={handleBlur('rentPrice')}
+                                            value={values.rentPricePerMonth}
+                                            onChangeText={handleChange('rentPricePerMonth')}
+                                            onBlur={handleBlur('rentPricePerMonth')}
                                             placeholder="₹ / month"
                                             keyboardType="numeric"
                                         />
-                                        {errors.rentPrice && (
-                                            <Text className="text-red-500 text-sm">{errors.rentPrice}</Text>
+                                        {errors.rentPricePerMonth && (
+                                            <Text className="text-red-500 text-sm">{errors.rentPricePerMonth}</Text>
                                         )}
                                     </View>
                                 </View>

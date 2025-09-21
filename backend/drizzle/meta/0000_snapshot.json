@@ -1,5 +1,5 @@
 {
-  "id": "d6d1fe8d-e1e2-4da0-a2ff-7cf7ad2657d4",
+  "id": "2490fc24-f68b-47e5-89f6-e2aed7bdf4a9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -75,9 +75,27 @@
           "primaryKey": false,
           "notNull": true
         },
+        "district": {
+          "name": "district",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subDistrict": {
+          "name": "subDistrict",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "village": {
+          "name": "village",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "coordinates": {
           "name": "coordinates",
-          "type": "varchar(255)[]",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -98,13 +116,15 @@
           "name": "created_at",
           "type": "date",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "date",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},

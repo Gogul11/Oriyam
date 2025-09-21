@@ -9,6 +9,7 @@ import { router } from 'expo-router';
 import { loginFormInitialValues, loginFormValidation } from '../../utils/loginPageUtils';
 import { loginUser } from '../../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { userStore } from '../../stores/userStore';
 
 
 const handleLogin = async (values: any) => {
@@ -17,11 +18,11 @@ const handleLogin = async (values: any) => {
 
       const data = await loginUser(values.mobile, values.password);
 
-      await AsyncStorage.setItem('authToken', data.token);
+      // await AsyncStorage.setItem('authToken', data.token);
+      userStore.getState().setToken(data.token)
       console.log("Token saved:", data.token);
 
-      Alert.alert("Success", data.message);
-      console.log("User:", data.user);
+      Alert.alert("Logged in success fully")
 
       router.push('/search');
 

@@ -40,20 +40,14 @@ export const loginController = async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign(
-      { id: user.user_id, mobile: user.mobile },
+      { id: user.user_id },
       process.env.JWT_SECRET as string,
       { expiresIn: "1h" }
     );
 
-    return res.json({
+    return res.status(200).json({
       message: "Login successful",
-      token,
-      user: {
-        id: user.user_id,
-        username: user.username,
-        mobile: user.mobile,
-        email: user.email,
-      },
+      token
     });
   } catch (error: any) {
     console.error(error);
