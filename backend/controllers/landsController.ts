@@ -41,7 +41,9 @@ export const addLandContoller = async (
                     })
                 );
 
-                photoKeys.push(key)
+                const publicUrl = `${process.env.CLOUDFLARE_IMAGE_END_POINT}/${key}`
+
+                photoKeys.push(publicUrl)
             } catch (error) {
                 console.log("Error in uploading Images", error)
                 if(photoKeys.length > 0){
