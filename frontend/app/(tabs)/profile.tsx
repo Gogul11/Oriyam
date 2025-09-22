@@ -16,6 +16,7 @@ import MapView, { Polygon, Marker } from 'react-native-maps';
 import { getUserProfile, updateUserProfile } from "../../api/profile";
 import { userStore } from "../../stores/userStore";
 import { useRouter } from "expo-router";
+import { fetchUserInterests } from "../../api/lands";
 
 interface Land {
   landId: string;
@@ -50,9 +51,19 @@ interface UserProfile {
   dateofbirth: string;
   lands: Land[];
 }
-
+interface Interest {
+  interestId: string;
+  landId: string;
+  landTitle: string; // land title
+  budgetPerMonth: number;
+  rentPeriod: string;
+  reason: string;
+  created_at: string;
+  landStatus: boolean;
+}
 const ProfileScreen = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [interests, setInterests] = useState<Interest[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const router = useRouter();
@@ -69,12 +80,15 @@ const ProfileScreen = () => {
     confirmNewPassword: "",
   });
   const [selectedLand, setSelectedLand] = useState<Land | null>(null);
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<MapView>(null);  
+  const [showLands, setShowLands] = useState(false);
+  const [showInterests, setShowInterests] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const data = await getUserProfile(userStore.getState().token);
+        const token = userStore.getState().token;
+        const data = await getUserProfile(token);        
         setProfile(data);
         setForm({
           username: data.username,
@@ -88,11 +102,14 @@ const ProfileScreen = () => {
           newPassword: "",
           confirmNewPassword: "",
         });
-      } catch (err) {
-        console.error("Profile fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
+
+        const interestsData = await fetchUserInterests(data.user_id);
+          setInterests(interestsData);
+        } catch (err) {
+          console.error("Profile fetch error:", err);
+        } finally {
+          setLoading(false);
+        }
     };
     fetchProfile();
   }, []);
@@ -197,7 +214,10 @@ const ProfileScreen = () => {
               { label: "Age", value: profile.age.toString() },
               { label: "DOB", value: new Date(profile.dateofbirth).toDateString() },
               { label: "Gov ID Type", value: profile.gov_id_type },
-              { label: "Gov ID Number", value: profile.goverment_id },
+              { 
+                label: "Gov ID Number", 
+                value: profile.goverment_id ? `****${profile.goverment_id.slice(-4)}` : "" 
+              },
             ].map(({ label, value }) => (
               <View style={styles.infoRow} key={label}>
                 <Text style={styles.label}>{label}:</Text>
@@ -215,8 +235,21 @@ const ProfileScreen = () => {
         )}
       </View>
 
-      <Text style={styles.subheading}>Owned Lands</Text>
-      {profile.lands && profile.lands.length > 0 ? (
+       {/* Owned Lands Section */}
+      <TouchableOpacity
+        style={[styles.section, { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }]}
+        onPress={() => setShowLands(!showLands)}
+      >
+        <Text style={styles.sectionHeading}>
+          Owned Lands ({profile.lands?.length || 0})
+        </Text>
+        <Text style={{ color: "#388e3c", fontSize: 13 }}>
+          {showLands ? "▲" : "▼"}
+        </Text>
+      </TouchableOpacity>
+
+      {showLands && (
+        profile.lands && profile.lands.length > 0 ? (
         profile.lands.map((item) => (
           <View key={item.landId} style={{ marginBottom: 10 }}>
             <TouchableOpacity
@@ -247,6 +280,35 @@ const ProfileScreen = () => {
         ))
       ) : (
         <Text style={styles.error}>No lands found</Text>
+      ))}
+
+      {/* Interests Shown by User */}
+      <TouchableOpacity
+        style={[styles.section, { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }]}
+        onPress={() => setShowInterests(!showInterests)}
+      >
+        <Text style={styles.sectionHeading}>Interests ({interests.length})</Text>
+        <Text style={{ color: "#388e3c", fontSize: 13 }}>
+          {showInterests ? "▲" : "▼"}
+        </Text>
+      </TouchableOpacity>
+
+      {showInterests && interests.length > 0 ? (
+        interests.map((interest) => (
+          <View key={interest.interestId} style={{ marginBottom: 10 }}>
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => router.push({ pathname: "LandInterest", params: { landId: interest.landId, title: interest.landTitle } })}
+            >
+              <Text style={styles.landTitle}>{interest.landTitle}</Text>
+              <Text>Budget: ₹{interest.budgetPerMonth}</Text>
+              <Text>Rent Period: {interest.rentPeriod}</Text>
+              <Text>Status: {interest.landStatus ? "Active" : "Inactive"}</Text>
+            </TouchableOpacity>
+          </View>
+        ))
+      ) : (<></>
+        // <Text style={styles.error}>No interests found</Text>
       )}
 
       {/* Modal for Land Details */}
