@@ -708,7 +708,7 @@ const AddLandIndex = () => {
             <ScrollView className="flex-1 bg-[#e8f5e9]">
                 {/* Header */}
                 <View className="my-6 px-4">
-                    <Text className="text-3xl font-extrabold text-green-800 mb-2">Add New Land 🌾</Text>
+                    <Text className="text-3xl font-extrabold text-green-800 mb-2">Add New Land </Text>
                     <Text className="text-gray-600">Step {currentStep} of {totalSteps}: {steps[currentStep - 1].title}</Text>
                 </View>
 
