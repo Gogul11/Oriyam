@@ -143,7 +143,7 @@ const ProfileScreen = () => {
   if (!profile) return <Text style={styles.error}>No profile found</Text>;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView className="flex-1 px-4 py-2">
       <View style={styles.header}>
         <Text style={styles.heading}>{profile.username}'s Profile</Text>
       </View>
