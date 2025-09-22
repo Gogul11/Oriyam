@@ -1,5 +1,5 @@
 {
-  "id": "b5894c2e-c3d6-4a79-9561-3cb5b1e6b4c2",
+  "id": "cb9c2025-5824-4a0b-ac56-cbc850534a50",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -140,6 +140,97 @@
             "user_id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.landInterest": {
+      "name": "landInterest",
+      "schema": "",
+      "columns": {
+        "interestId": {
+          "name": "interestId",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "landId": {
+          "name": "landId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budgetPerMonth": {
+          "name": "budgetPerMonth",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rentPeriod": {
+          "name": "rentPeriod",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "landInterest_landId_land_landId_fk": {
+          "name": "landInterest_landId_land_landId_fk",
+          "tableFrom": "landInterest",
+          "tableTo": "land",
+          "columnsFrom": [
+            "landId"
+          ],
+          "columnsTo": [
+            "landId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "landInterest_userId_users_user_id_fk": {
+          "name": "landInterest_userId_users_user_id_fk",
+          "tableFrom": "landInterest",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },

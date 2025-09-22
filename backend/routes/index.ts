@@ -4,6 +4,7 @@ import landsRouter from "./landsRouter";
 import { verifyToken } from "../middleware/verify";
 import profileRoutes from "./profileRoutes";
 import forgotPasswordRoutes from "./forgotPasswordRoutes";
+import interestRoutes from "./interestRoutes";
 
 const routes = Router();
 
@@ -15,5 +16,6 @@ routes.use("/profile", profileRoutes);
 routes.use("/auth", authRoutes);
 routes.use("/lands", verifyToken, landsRouter);
 routes.use("/forgot-password", forgotPasswordRoutes);
+routes.use("/interests", interestRoutes);
 
 export default routes;
