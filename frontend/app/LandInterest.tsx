@@ -9,9 +9,15 @@ import {
   Modal,
   Pressable,
   Linking,
+  KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { fetchLandInterests } from "../api/lands";
+import CustomButton from "../components/button";
+import TextField from "../components/form/textInput";
+import { userStore } from "../stores/userStore";
+import axios from "axios";
 
 interface Interest {
   interestId: string;
@@ -35,6 +41,12 @@ const LandInterest = () => {
   const [interests, setInterests] = useState<Interest[]>([]);
   const [selectedUser, setSelectedUser] = useState<Interest | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [detail, setDetail] = useState(false)
+  const [transaction, setTransaction] = useState(false)
+
+  const [deposit, setDeposit] = useState('');
+  const [monthlyDue, setMonthlyDue] = useState('');
+  const [totalMonths, setTotalMonths] = useState('')
 
   useEffect(() => {
     const getInterests = async () => {
@@ -58,12 +70,54 @@ const LandInterest = () => {
   const handleCardPress = (user: Interest) => {
     setSelectedUser(user);
     setModalVisible(true);
+    setDetail(true)
   };
 
   const handleCall = (phone: string) => {
     Linking.openURL(`tel:${phone}`);
   };
 
+  const handleTransaction = async(landId : string, buyerId : string) => {
+    try {
+      console.log(deposit, monthlyDue, totalMonths, landId, buyerId)
+      if(!userStore.getState().token){
+        Alert.alert("Please Login")
+        return;
+      }
+
+      const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+      const data = {
+        landId : landId,
+        buyerId : buyerId,
+        initialDeposit : deposit,
+        monthlyDue : monthlyDue,
+        totalMonths : totalMonths,
+        initialDepositStatus : "notpaid"
+      }
+
+      const res = await axios.post(
+          `${apiUrl}/transactions/seller`,
+          data,
+          {
+            headers : {
+              Authorization : `Bearer ${userStore.getState().token}`
+            }
+          } 
+      )
+
+      Alert.alert("success", res.data.message)
+
+      setTransaction(false)
+      setDeposit('')
+      setMonthlyDue('')
+      setMonthlyDue('')
+      
+    } catch (error : any) {
+        Alert.alert("OOPS!", error.message)
+        console.log(error)
+    }
+  }
+  
   if (loading) {
     return (
       <View style={styles.center}>
@@ -72,79 +126,126 @@ const LandInterest = () => {
     );
   }
 
+
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{district}</Text>
-        </View>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+      {!detail ?
+          <ScrollView contentContainerStyle={styles.container}>
+              <View style={styles.header}>
+                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.subtitle}>{district}</Text>
+              </View>
 
-        {interests.length === 0 ? (
-          <Text style={styles.empty}>No interests yet for this land.</Text>
-        ) : (
-          interests.map((item) => (
-            <TouchableOpacity
-              key={item.interestId}
-              style={styles.card}
-              onPress={() => handleCardPress(item)}
-            >
-              <Text style={styles.userName}>{item.username}</Text>
-              <Text style={styles.bid}>
-                Bid: ₹{item.budgetPerMonth.toLocaleString()} / month
-              </Text>
-              {item.reason && <Text style={styles.message}>"{item.reason}"</Text>}
-            </TouchableOpacity>
-          ))
-        )}
-
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => router.push("(tabs)/profile")}
-        >
-          <Text style={styles.backBtnText}>⬅ Back</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
-      {/* 🔹 Modal for user details */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            {selectedUser && (
-              <>
-                <Text style={styles.modalTitle}>{selectedUser.username}</Text>
-                <Text>Email: {selectedUser.email}</Text>
-                <Text>Mobile: {selectedUser.mobile}</Text>
-                <Text>Age: {selectedUser.age}</Text>
-                <Text>Bid: ₹{selectedUser.budgetPerMonth.toLocaleString()}</Text>
-                {selectedUser.reason && <Text>Reason: {selectedUser.reason}</Text>}
-
-                <View style={styles.modalButtons}>
-                  <Pressable
-                    style={[styles.modalBtn, { backgroundColor: "#2e7d32" }]}
-                    onPress={() => handleCall(selectedUser.mobile)}
+              {interests.length === 0 ? (
+                <Text style={styles.empty}>No interests yet for this land.</Text>
+              ) : (
+                interests.map((item) => (
+                  <TouchableOpacity
+                    key={item.interestId}
+                    style={styles.card}
+                    onPress={() => handleCardPress(item)}
                   >
-                    <Text style={styles.modalBtnText}>Call</Text>
-                  </Pressable>
+                    <Text style={styles.userName}>{item.username}</Text>
+                    <Text style={styles.bid}>
+                      Bid: ₹{item.budgetPerMonth.toLocaleString()} / month
+                    </Text>
+                    {item.reason && <Text style={styles.message}>"{item.reason}"</Text>}
+                  </TouchableOpacity>
+                ))
+              )}
 
-                  <Pressable
-                    style={[styles.modalBtn, { backgroundColor: "#aaa" }]}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.modalBtnText}>Close</Text>
-                  </Pressable>
+              <TouchableOpacity
+                style={styles.backBtn}
+                onPress={() => router.push("(tabs)/profile")}
+              >
+                <Text style={styles.backBtnText}>⬅ Back</Text>
+              </TouchableOpacity>
+          </ScrollView>
+        :
+    
+          <View className="flex justify-center items-center">
+            <View style={styles.modalContainer}>
+              {selectedUser && (
+                <View className="text-lg flex gap-1">
+                  <Text style={styles.modalTitle}>{selectedUser.username}</Text>
+                  <Text>Email: {selectedUser.email}</Text>
+                  <Text>Mobile: {selectedUser.mobile}</Text>
+                  <Text>Age: {selectedUser.age}</Text>
+                  <Text>Bid: ₹{selectedUser.budgetPerMonth.toLocaleString()}</Text>
+                  {selectedUser.reason && <Text>Reason: {selectedUser.reason}</Text>}
+
+                  <View style={styles.modalButtons}>
+                    <Pressable
+                      style={[styles.modalBtn, { backgroundColor: "#2e7d32" }]}
+                      onPress={() => handleCall(selectedUser.mobile)}
+                    >
+                      <Text style={styles.modalBtnText}>Call</Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={[styles.modalBtn, { backgroundColor: "#aaa" }]}
+                      onPress={() => setDetail(false)}
+                    >
+                      <Text style={styles.modalBtnText}>Close</Text>
+                    </Pressable>
+                  </View>
+
+                 
+
+                  {transaction && 
+                    <View>
+                        <Text className="text-lg font-semibold mt-2">Initial Deposit</Text>
+                        <TextField
+                          placeholder="Enter initial deposit"
+                          keyboardType="numeric"
+                          value={deposit}
+                          onChangeText={setDeposit}
+                        />
+
+                        <Text className="text-lg font-semibold mt-4">Monthly Due</Text>
+                        <TextField
+                          placeholder="Enter monthly due"
+                          keyboardType="numeric"
+                          value={monthlyDue}
+                          onChangeText={setMonthlyDue}
+                        />
+
+                        <Text className="text-lg font-semibold mt-4">Total Months</Text>
+                        <TextField
+                          placeholder="Total Months"
+                          keyboardType="numeric"
+                          value={totalMonths}
+                          onChangeText={setTotalMonths}
+                        />
+
+                        <Text className="text-sm text-gray-600 italic mt-4">
+                          *Initial deposit will be returned at the end of the agreement.
+                        </Text>
+                    </View>
+                  }
+
+                  {transaction ? 
+                      <View className="w-full flex justify-center items-center my-4">
+                        <CustomButton
+                          text={"Make a deal"}
+                          onPress={() => handleTransaction(selectedUser.landId, selectedUser.user_id)}
+                        />
+                      </View>
+                    :
+                    <View className="w-full flex justify-center items-center my-4">
+                       <CustomButton
+                          text="Proceed"
+                          onPress={() => setTransaction(true)}
+                        />
+                    </View>
+                  }
                 </View>
-              </>
-            )}
+              )}
+            </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+      }
+      {/* </Modal> */}
+    </KeyboardAvoidingView>
   );
 };
 
@@ -176,7 +277,7 @@ const styles = StyleSheet.create({
 
   // Modal styles
   modalBackground: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-  modalContainer: { width: "85%", backgroundColor: "#fff", padding: 20, borderRadius: 10 },
+  modalContainer: { width: "100%", backgroundColor: "#fff", padding: 20, borderRadius: 10 },
   modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10, color: "#1b5e20" },
   modalButtons: { flexDirection: "row", justifyContent: "space-between", marginTop: 20 },
   modalBtn: { padding: 12, borderRadius: 8, flex: 1, marginHorizontal: 5 },
