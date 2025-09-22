@@ -139,6 +139,13 @@ export async function fetchCoordinates(place: string): Promise<{ latitude: numbe
     }
 }
 
+const chennaiRegion = {
+  latitude: 13.0827,
+  longitude: 80.2707,
+  latitudeDelta: 0.1,
+  longitudeDelta: 0.1,
+};
+
 // ------------------ Main AddLand Form ------------------ //
 const AddLandIndex = () => {
     const [images, setImages] = useState<string[]>([]);
@@ -418,12 +425,12 @@ const AddLandIndex = () => {
                                             {mapRegion && (
                                                 <MapView
                                                     style={{ flex: 1 }}
-                                                    region={mapRegion}
+                                                    region={mapRegion || chennaiRegion}
                                                     onPress={(e) => {
                                                         const { latitude, longitude } = e.nativeEvent.coordinate;
                                                         setPolygonPoints([...polygonPoints, { latitude, longitude }]);
                                                     }}
-                                                >
+                                                    >
                                                     {polygonPoints.map((point, idx) => (
                                                         <Marker key={idx} coordinate={point} />
                                                     ))}

@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1758464277670,
-      "tag": "0000_small_richard_fisk",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1758480526477,
-      "tag": "0001_silent_dakota_north",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1758481502263,
-      "tag": "0002_stale_norman_osborn",
+      "when": 1758531017515,
+      "tag": "0000_flowery_inertia",
       "breakpoints": true
     }
   ]
