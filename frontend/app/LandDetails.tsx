@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
-import { View, Text, Image, ScrollView, FlatList, useWindowDimensions } from 'react-native';
+import React, {useState, useRef} from 'react';
+import { View, Text, ScrollView, FlatList, Image, useWindowDimensions } from "react-native";
+import MapView, { Marker, Polygon } from "react-native-maps";
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { type Land } from '../utils/viewLandsPageUtils';
 import CustomButton from '../components/button';
@@ -24,7 +25,7 @@ const LandDetails = () => {
   const route = useRoute<LandDetailsRouteProp>();
   const { land } = route.params;
   const { width } = useWindowDimensions();
-
+  const mapRef = useRef<MapView | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [submittedData, setSubmittedData] = useState<any>(null);
 
@@ -63,6 +64,35 @@ const LandDetails = () => {
           <DetailRow label="Available To" value={land.availabilityTo} />
           <DetailRow label="Status" value={land.status ? 'Available' : 'Not Available'} />
         </View>
+
+         {/* Map with Polygon */}
+      <View style={{ height: 300, marginVertical: 10, borderRadius: 10, overflow: "hidden" }}>
+        <MapView
+          ref={mapRef}
+          style={{ flex: 1 }}
+          initialRegion={{
+            latitude: land.coordinates[0].latitude,
+            longitude: land.coordinates[0].longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+        >
+          <Polygon
+            coordinates={land.coordinates}
+            strokeColor="#2e7d32"
+            fillColor="rgba(76, 175, 80, 0.3)"
+            strokeWidth={2}
+          />
+
+          <Marker
+            coordinate={{
+              latitude: land.coordinates[0].latitude,
+              longitude: land.coordinates[0].longitude,
+            }}
+            title={land.title}
+          />
+        </MapView>
+      </View>
 
         <View>
           <InterestForm
