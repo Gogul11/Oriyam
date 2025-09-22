@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { transactionController } from "../controllers/transactionController";
+import { transactionInitController, transactionViewController } from "../controllers/transactionController";
 
 const transaction = Router()
 
-transaction.post("/seller", transactionController)
+transaction.post("/seller", transactionInitController)
+transaction.get("/buyer", transactionViewController)
 
 export default transaction
