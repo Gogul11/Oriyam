@@ -61,9 +61,25 @@ interface Interest {
   created_at: string;
   landStatus: boolean;
 }
+interface Transaction {
+  transactionId: string;
+  landId: string;
+  buyerId: string;
+  sellerId: string;
+  initialDeposit: string;
+  initialDepositStatus: "paid" | "notpaid";
+  monthlyDue: string;
+  totalMonths: number;
+  buyerApproved: boolean;
+  sellerApproved: boolean;
+  payments: any | null; // If you later add a payments table, replace `any` with proper type
+  transactionDate: string;
+}
+
 const ProfileScreen = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [interests, setInterests] = useState<Interest[]>([]);
+  const [trans, setTrans] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const router = useRouter();
@@ -83,7 +99,7 @@ const ProfileScreen = () => {
   const mapRef = useRef<MapView>(null);  
   const [showLands, setShowLands] = useState(false);
   const [showInterests, setShowInterests] = useState(false);
-
+  const [showTrans, setShowTrans] = useState(false);
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -310,6 +326,65 @@ const ProfileScreen = () => {
       ) : (<></>
         // <Text style={styles.error}>No interests found</Text>
       )}
+      {/* Transactions Shown by User */}
+      <TouchableOpacity
+        style={[
+          styles.section,
+          { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+        ]}
+        onPress={() => setShowTrans(!showTrans)}
+      >
+        <Text style={styles.sectionHeading}>Transactions ({trans.length})</Text>
+        <Text style={{ color: "#388e3c", fontSize: 13 }}>
+          {showTrans ? "▲" : "▼"}
+        </Text>
+      </TouchableOpacity>
+
+      {showTrans && trans.length > 0 ? (
+        trans.map((trans) => (
+          <View key={trans.transactionId} style={{ marginBottom: 10 }}>
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() =>
+                router.push({
+                  pathname: "Transaction",
+                  params: { landId: trans.transactionId, date: trans.transactionDate },
+                })
+              }
+            >
+              <Text>Initial Deposit: ₹{trans.initialDeposit}</Text>
+              <Text>Deposit Status: {trans.initialDepositStatus}</Text>
+              <Text>Monthly Due: ₹{trans.monthlyDue}</Text>
+              <Text>Total Months: {trans.totalMonths}</Text>
+              <Text>Buyer Approved: {trans.buyerApproved ? "✅" : "❌"}</Text>
+              <Text>Seller Approved: {trans.sellerApproved ? "✅" : "❌"}</Text>
+              <Text>Date: {new Date(trans.transactionDate).toDateString()}</Text>
+            </TouchableOpacity>
+
+            {!trans.buyerApproved && (
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#388e3c",
+                  padding: 10,
+                  borderRadius: 8,
+                  marginTop: 8,
+                  alignItems: "center",
+                }}
+                onPress={() => {
+                  console.log("Pay advance for transaction:", trans.transactionId);
+                  // Example: router.push("/payment")
+                }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "bold" }}>Pay Advance</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ))
+      ) : (
+        <></>
+        // <Text style={styles.error}>No interests found</Text>
+      )}
+
 
       {/* Modal for Land Details */}
       <Modal
