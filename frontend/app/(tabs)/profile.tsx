@@ -160,7 +160,7 @@ const ProfileScreen = () => {
               { label: "Email", field: "email", keyboard: "email-address" },
               { label: "Mobile", field: "mobile", keyboard: "phone-pad" },
               { label: "Age", field: "age", keyboard: "numeric" },
-              { label: "DOB", field: "dateofbirth", keyboard: "default" },
+              // { label: "DOB", field: "dateofbirth", keyboard: "default" },
               { label: "Gov ID Type", field: "gov_id_type", keyboard: "default" },
               { label: "Gov ID Number", field: "goverment_id", keyboard: "default" },
             ].map(({ label, field, keyboard }) => (
@@ -176,22 +176,14 @@ const ProfileScreen = () => {
               </View>
             ))}
 
-            {/* Password Fields */}
-            <Text style={{ fontWeight: "700", marginTop: 10, color: "#2e7d32" }}>Change Password</Text>
-            {["currentPassword", "newPassword", "confirmNewPassword"].map((field) => (
-              <View style={styles.inputRow} key={field}>
-                <Text style={styles.inputLabel}>
-                  {field === "currentPassword" ? "Current" : field === "newPassword" ? "New" : "Confirm"}:
-                </Text>
-                <TextInput
-                  style={styles.input}
-                  value={form[field as keyof typeof form]}
-                  onChangeText={(val) => handleChange(field, val)}
-                  placeholder={field}
-                  secureTextEntry
-                />
-              </View>
-            ))}
+            <View className="items-center mt-2">
+              <Text
+                className="text-md text-blue-600 underline"
+                onPress={() => router.push("/forgot-password")}
+              >
+                Forgot Password?
+              </Text>
+            </View>
 
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
               <Text style={styles.saveBtnText}>Save</Text>
@@ -223,7 +215,7 @@ const ProfileScreen = () => {
         )}
       </View>
 
-       <Text style={styles.subheading}>Owned Lands</Text>
+      <Text style={styles.subheading}>Owned Lands</Text>
       {profile.lands && profile.lands.length > 0 ? (
         profile.lands.map((item) => (
           <View key={item.landId} style={{ marginBottom: 10 }}>
@@ -236,18 +228,18 @@ const ProfileScreen = () => {
               <Text style={[styles.status, item.status ? styles.available : styles.notAvailable]}>
                 {item.status ? "Available" : "Not Available"}
               </Text>
-            <TouchableOpacity style={styles.interestBtn}
-                onPress={() =>
-                  router.push({
-                    pathname: "landInterest",
-                    params: {
-                      landId: item.landId,    
-                      title: item.title,       
-                      district: item.district,  
-                    },
-                  })
-                }
-              >
+              <TouchableOpacity style={styles.interestBtn}
+                  onPress={() =>
+                    router.push({
+                      pathname: "LandInterest",
+                      params: {
+                        landId: item.landId,    
+                        title: item.title,       
+                        district: item.district,  
+                      },
+                    })
+                  }
+                >
                 <Text style={styles.interestBtnText}>View Interests</Text>
               </TouchableOpacity>
             </TouchableOpacity>
@@ -377,10 +369,11 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#2e7d32",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 5,
     marginBottom: 20,
+    opacity : 0.9
   },
-  heading: { fontSize: 26, fontWeight: "bold", color: "#fff", textAlign: "center" },
+  heading: { fontSize: 20, color: "#fff", textAlign: "center" },
   subheading: { fontSize: 20, fontWeight: "600", marginVertical: 10, color: "#1b5e20" },
   section: { backgroundColor: "#fff", padding: 14, borderRadius: 10, marginBottom: 14, borderWidth: 1, borderColor: "#c8e6c9" },
   sectionHeading: { fontSize: 18, fontWeight: "700", marginBottom: 8, color: "#2e7d32" },

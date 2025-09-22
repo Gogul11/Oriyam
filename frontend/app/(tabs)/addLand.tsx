@@ -207,7 +207,7 @@ const AddLandIndex = () => {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={{ flex: 1 }}
         >
-            <ScrollView className="flex-1 px-4">
+            <ScrollView className="flex-1 px-4 bg-[#e8f5e9]">
                 {/* Header */}
                 <View className="my-6">
                     <Text className="text-2xl font-bold text-gray-800 mb-2">Add New Land</Text>
@@ -217,9 +217,14 @@ const AddLandIndex = () => {
                 <Formik
                     initialValues={LandFormInitialValues}
                     validationSchema={LandSchema}
-                    onSubmit={(values, {resetForm}) => {
-                        handleSubmit(values, selectedLocation, images)
+                    onSubmit={async (values, {resetForm}) => {
+                        await handleSubmit(values, selectedLocation, images)
                         resetForm()
+                        setImages([])
+                        setSelectedDistrict('')
+                        setSelectedSubDistrict('')
+                        setSelectedVillage('')
+                        setSelectedLocation(null)
                     }}
                     
                 >
@@ -274,7 +279,7 @@ const AddLandIndex = () => {
                                 </View>
 
                                 {/* Rent & Soil/Water */}
-                                <View className="p-4 rounded-md flex gap-4 border">
+                                <View className=" bg-gray-50 p-4 rounded-md flex gap-4 border">
                                     <Text className="text-lg font-semibold text-gray-800">Land Details</Text>
                                     <View className="flex-1">
                                         <Label text="Soil Type" required />
@@ -303,7 +308,7 @@ const AddLandIndex = () => {
                                 </View>
 
                                 {/* Availability */}
-                                <View className="p-4 rounded-md flex gap-4 border">
+                                <View className="bg-gray-50 p-4 rounded-md flex gap-4 border">
                                     <Text className="text-lg font-semibold text-gray-800">Availability</Text>
                                     <View>
                                         <Label text="From" required />
@@ -352,7 +357,7 @@ const AddLandIndex = () => {
                                 </View>
 
                                 {/* Location & Village Selection */}
-                                <View className="p-4 rounded-md flex gap-4 border">
+                                <View className="bg-gray-50 p-4 rounded-md flex gap-4 border">
                                     <Text className="text-lg font-semibold text-gray-800">Location</Text>
 
                                     {/* District */}
@@ -410,7 +415,7 @@ const AddLandIndex = () => {
                                 </View>
 
                                 {/* Polygon Picker */}
-                                <View className="p-4 rounded-md flex gap-4 border">
+                                <View className="bg-gray-50 p-4 rounded-md flex gap-4 border">
                                     <Text className="text-lg font-semibold text-gray-800">Land Polygon</Text>
                                     <TouchableOpacity
                                         onPress={() => setShowPolygonModal(true)}
@@ -536,7 +541,7 @@ const AddLandIndex = () => {
                                 </View>
 
                                 {/* Images */}
-                                <View className="p-4 rounded-md flex gap-4 border">
+                                <View className="bg-gray-50 p-4 rounded-md flex gap-4 border">
                                     <Text className="text-lg font-semibold text-gray-800">Land Photos</Text>
                                     <ImagePickerComponent images={images} onImagesChange={setImages} />
                                 </View>
