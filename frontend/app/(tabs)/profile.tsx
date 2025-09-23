@@ -214,24 +214,25 @@ const ProfileScreen = () => {
                 {editing ? (
                     <>
                         {[
-                            { label: "Username", field: "username", keyboard: "default" },
-                            { label: "Email", field: "email", keyboard: "email-address" },
-                            { label: "Mobile", field: "mobile", keyboard: "phone-pad" },
-                            { label: "Age", field: "age", keyboard: "numeric" },
-                            { label: "Gov ID Type", field: "gov_id_type", keyboard: "default" },
-                            { label: "Gov ID Number", field: "goverment_id", keyboard: "default" },
-                        ].map(({ label, field, keyboard }) => (
-                            <View style={styles.inputRow} key={field}>
-                                <Text style={styles.inputLabel}>{label}:</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    value={form[field as keyof typeof form]}
-                                    onChangeText={(val) => handleChange(field, val)}
-                                    placeholder={label}
-                                    keyboardType={keyboard as any}
-                                />
-                            </View>
-                        ))}
+    { label: "Username", field: "username", keyboard: "default" },
+    { label: "Email", field: "email", keyboard: "email-address" },
+    { label: "Mobile", field: "mobile", keyboard: "phone-pad" },
+    // Replaced 'age' with 'dateofbirth'
+    { label: "DOB", field: "dateofbirth", keyboard: "default" }, 
+    { label: "Gov ID Type", field: "gov_id_type", keyboard: "default" },
+    { label: "Gov ID Number", field: "goverment_id", keyboard: "default" },
+].map(({ label, field, keyboard }) => (
+    <View style={styles.inputRow} key={field}>
+        <Text style={styles.inputLabel}>{label}:</Text>
+        <TextInput
+            style={styles.input}
+            value={form[field as keyof typeof form]}
+            onChangeText={(val) => handleChange(field, val)}
+            placeholder={label}
+            keyboardType={keyboard as any}
+        />
+    </View>
+))}
 
                         <View style={styles.linkRow}>
                             <Text

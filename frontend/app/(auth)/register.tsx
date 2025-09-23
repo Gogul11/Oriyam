@@ -209,6 +209,7 @@ const Index = () => {
                                                 mode='dropdown'
                                                 style={styles.pickerStyle}
                                             >
+                                                <Picker.Item label='Select an ID Type' value='' enabled={false} />
                                                 <Picker.Item label='Aadhar Card' value='aadhar' />
                                                 <Picker.Item label='PAN Card' value='pan' />
                                                 <Picker.Item label='Voter ID' value='voter' />
