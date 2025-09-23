@@ -19,6 +19,7 @@ import { useRouter } from "expo-router";
 import { fetchUserInterests } from "../../api/lands";
 import { fetchUserTransactions } from "../../api/transactions";
 import { Ionicons } from '@expo/vector-icons'; // Added for icons
+import CustomButton from "../../components/button";
 
 // --- Theme and Utility Styles ---
 const PRIMARY_GREEN = '#1B5E20';
@@ -81,8 +82,9 @@ interface Transaction {
     totalMonths: number;
     buyerApproved: boolean;
     sellerApproved: boolean;
-    payments: any | null; // If you later add a payments table, replace `any` with proper type
+    payments: [{month : number, paid : boolean}] | null; // If you later add a payments table, replace `any` with proper type
     transactionDate: string;
+    lastTransactionDate : string
 }
 
 const ProfileScreen = () => {
@@ -193,7 +195,7 @@ const ProfileScreen = () => {
     };
     
     const handleLogout = () => {
-        userStore.getState().logout();
+        // userStore.getState().logout();
         router.replace('/'); 
     };
 
@@ -368,7 +370,7 @@ const ProfileScreen = () => {
                             onPress={() =>
                                 router.push({
                                     pathname: "Transaction",
-                                    params: { landId: t.transactionId, date: t.transactionDate },
+                                    params: { trans : JSON.stringify(t) },
                                 })
                             }
                         >
@@ -376,21 +378,12 @@ const ProfileScreen = () => {
                             <Text style={styles.infoText}>Deposit Status: {t.initialDepositStatus}</Text>
                             <Text style={styles.infoText}>Monthly Due: ₹{t.monthlyDue}</Text>
                             <Text style={styles.infoText}>Total Months: {t.totalMonths}</Text>
-                            <Text style={styles.infoText}>Buyer Approved: {t.buyerApproved ? "✅" : "❌"}</Text>
-                            <Text style={styles.infoText}>Seller Approved: {t.sellerApproved ? "✅" : "❌"}</Text>
+                            <Text style={styles.infoText}>Buyer Approved: {t.buyerApproved ? "Approved" : "Not Approved"}</Text>
+                            <Text style={styles.infoText}>Seller Approved: {t.sellerApproved ? "Approved" : "Not Approved"}</Text>
                             <Text style={styles.infoText}>Date: {new Date(t.transactionDate).toDateString()}</Text>
+                            <Text className="text-[15px] text-gray-600 mb-1">Date: {new Date(t.lastTransactionDate).toDateString()}</Text>
                         </TouchableOpacity>
 
-                        {!t.buyerApproved && (
-                            <TouchableOpacity
-                                style={styles.payAdvanceBtn}
-                                onPress={() => {
-                                    console.log("Pay advance for transaction:", t.transactionId);
-                                }}
-                            >
-                                <Text style={styles.payAdvanceBtnText}>Pay Advance</Text>
-                            </TouchableOpacity>
-                        )}
                     </View>
                 ))
             ) : (
