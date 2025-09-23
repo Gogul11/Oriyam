@@ -29,7 +29,7 @@ export const getRegisterFormValidation = (selectedIdType: 'aadhar' | 'pan' | 'vo
     email: Yup.string().email('Invalid Email'),
 
     mobile: Yup.string()
-      .matches(/^[0-9]{7,15}$/, 'Invalid mobile number')
+      .matches(/^[0-9]{10}$/, 'Invalid mobile number')
       .required("Mobile Number is required"),
 
     mobileCountryCode: Yup.string()
