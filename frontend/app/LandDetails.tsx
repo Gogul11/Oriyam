@@ -48,7 +48,7 @@ const LandDetails = () => {
             }, 500);
             return () => clearTimeout(timeout);
         }
-    }, [land.coordinates]);
+    }, [land.Coordinates]);
 
 
     const handleInterestPress = (data: any, landId: string) => {

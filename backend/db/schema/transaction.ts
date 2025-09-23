@@ -8,6 +8,7 @@ import {
   integer,
   jsonb,
   pgEnum,
+  timestamp
 } from "drizzle-orm/pg-core";
 import { land } from "./land";
 import { users } from "./users";
@@ -51,5 +52,7 @@ export const transaction = pgTable("transaction", {
 
   payments: jsonb("payments").$type<{ month: number; paid: boolean }[]>(),
 
-  transactionDate: date("transactionDate").notNull().defaultNow(),
+  transactionDate: timestamp("transactionDate").notNull().defaultNow(),
+
+  lastTransactionDate : timestamp("lastTransactionDate").notNull().defaultNow()
 });
