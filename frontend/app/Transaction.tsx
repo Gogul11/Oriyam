@@ -23,19 +23,21 @@ interface Transaction {
 }
 
 type RootStackParamList = {
-    Transaction : {trans : string}
+    Transaction : {trans : string, userType : boolean}
 }
 
 type TransactionRouteProp = RouteProp<RootStackParamList, "Transaction">;
 
 const Transaction = () => {
     const route = useRoute<TransactionRouteProp>()
-    const { trans } = route.params;
+    const { trans, userType } = route.params;
 
-    const [transaction, setTransaction] = useState<Transaction>()    
+    const [transaction, setTransaction] = useState<Transaction>()  
+    const [type, setType] = useState<boolean>(false)  
 
     useEffect(() => {
-        console.log(trans)
+        console.log(trans,userType, "hi")
+        setType(JSON.parse(userType))
         setTransaction(JSON.parse(trans))
     }, [])
 
@@ -141,13 +143,15 @@ const Transaction = () => {
                 </View>
 
                 {/* Buttons */}
-                <View className="flex justify-center w-full items-center">
-                {!transaction.buyerApproved ? (
-                    <CustomButton text="Pay Advance" onPress={handlePayStatements} />
-                ) : (
-                    <CustomButton text="Pay Monthly Due" onPress={handleMonthlyPayments} />
-                )}
-                </View>
+                {type && transaction  && 
+                    <View className="flex justify-center w-full items-center">
+                        {!transaction.buyerApproved ? (
+                            <CustomButton text="Pay Advance" onPress={handlePayStatements} />
+                        ) : (
+                            <CustomButton text="Pay Monthly Due" onPress={handleMonthlyPayments} />
+                        )}
+                    </View>
+                }
             </View>
             )}
         </ScrollView>

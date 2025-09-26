@@ -111,6 +111,7 @@ const ProfileScreen = () => {
     const [showLands, setShowLands] = useState(false);
     const [showInterests, setShowInterests] = useState(false);
     const [showTrans, setShowTrans] = useState(false);
+    const [typeUser, setTypeUser] = useState<boolean[]>([])
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -136,8 +137,10 @@ const ProfileScreen = () => {
 
                 const transData = await fetchUserTransactions(token);
 
-                if (Array.isArray(transData)) {
-                    setTrans(transData);
+                if (Array.isArray(transData.transaction)) {
+                    setTrans(transData.transaction);
+                    setTypeUser(transData.isSeller)
+                    console.log(transData)
                 } else {
                     console.warn("Transactions API returned non-array data. Setting transactions to empty array.");
                     setTrans([]);
@@ -363,27 +366,32 @@ const ProfileScreen = () => {
             </TouchableOpacity>
 
             {showTrans && Array.isArray(trans) && trans.length > 0 ? (
-                trans.map((t) => (
+                trans.map((t, idx) => (
                     <View key={t.transactionId} style={{ marginBottom: 10 }}>
-                        <TouchableOpacity
-                            style={styles.card}
-                            onPress={() =>
-                                router.push({
-                                    pathname: "Transaction",
-                                    params: { trans : JSON.stringify(t) },
-                                })
-                            }
-                        >
-                            <Text style={styles.infoText}>Initial Deposit: ₹{t.initialDeposit}</Text>
-                            <Text style={styles.infoText}>Deposit Status: {t.initialDepositStatus}</Text>
-                            <Text style={styles.infoText}>Monthly Due: ₹{t.monthlyDue}</Text>
-                            <Text style={styles.infoText}>Total Months: {t.totalMonths}</Text>
-                            <Text style={styles.infoText}>Buyer Approved: {t.buyerApproved ? "Approved" : "Not Approved"}</Text>
-                            <Text style={styles.infoText}>Seller Approved: {t.sellerApproved ? "Approved" : "Not Approved"}</Text>
-                            <Text style={styles.infoText}>Date: {new Date(t.transactionDate).toDateString()}</Text>
-                            <Text className="text-[15px] text-gray-600 mb-1">Date: {new Date(t.lastTransactionDate).toDateString()}</Text>
-                        </TouchableOpacity>
+                        {t && 
+                            <TouchableOpacity
+                                style={styles.card}
+                                onPress={() =>{
 
+                                    router.push({
+                                        pathname: "Transaction",
+                                        params: { trans : JSON.stringify(t), userType : JSON.stringify(typeUser[idx]) },
+                                    }
+                                )
+                                console.log("dei", typeUser[idx])
+                            }
+                                }
+                            >
+                                <Text style={styles.infoText}>Initial Deposit: ₹{t.initialDeposit}</Text>
+                                <Text style={styles.infoText}>Deposit Status: {t.initialDepositStatus}</Text>
+                                <Text style={styles.infoText}>Monthly Due: ₹{t.monthlyDue}</Text>
+                                <Text style={styles.infoText}>Total Months: {t.totalMonths}</Text>
+                                <Text style={styles.infoText}>Buyer Approved: {t.buyerApproved ? "Approved" : "Not Approved"}</Text>
+                                <Text style={styles.infoText}>Seller Approved: {t.sellerApproved ? "Approved" : "Not Approved"}</Text>
+                                <Text style={styles.infoText}>Date: {new Date(t.transactionDate).toDateString()}</Text>
+                                <Text className="text-[15px] text-gray-600 mb-1">Date: {new Date(t.lastTransactionDate).toDateString()}</Text>
+                            </TouchableOpacity>
+                        }
                     </View>
                 ))
             ) : (

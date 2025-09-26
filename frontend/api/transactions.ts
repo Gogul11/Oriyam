@@ -6,5 +6,5 @@ export const fetchUserTransactions = async (token: string) => {
     const response = await axios.get(`${API_URL}/transactions/buyer`, {
         headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data.transaction;
+    return response.data;
 };

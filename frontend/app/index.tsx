@@ -99,12 +99,12 @@ const Index = () => {
         />
 
         {/* View Lands Button (Tertiary/Browse) */}
-        <CustomButton
+        {/* <CustomButton
           text="View Lands"
           onPress={() => router.push("(tabs)/search")}
           ButtonClassName="border border-green-700 w-full py-4 my-4 rounded-xl"
           TextClassName="text-green-700 text-center text-xl font-bold"
-        />
+        /> */}
       </View>
     </View>
   );

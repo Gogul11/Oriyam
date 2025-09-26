@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { db } from "../db/connection";
 import { transaction } from "../db/schema/transaction";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { interestForm } from "../db/schema/landIntrest";
 import { land } from "../db/schema/land";
 
@@ -46,10 +46,16 @@ export const transactionViewController = async (
                             select().
                             from(transaction).
                             where(
-                                eq(req.token.id, transaction.buyerId)
+                                or(
+                                    eq(req.token.id, transaction.sellerId),
+                                    eq(req.token.id, transaction.buyerId)
+
+                                )
                             )
 
-        return res.status(200).json({transaction : trans})
+        const isSeller = trans.map((t) => t.buyerId === req.token.id)
+        console.log(isSeller)
+        return res.status(200).json({transaction : trans, isSeller : isSeller})
         
     } catch (error) {
         console.error(error);
