@@ -6,6 +6,7 @@ import profileRoutes from "./profileRoutes";
 import forgotPasswordRoutes from "./forgotPasswordRoutes";
 import interestRoutes from "./interestRoutes";
 import transaction from "./transaction";
+import AdminRoute from "./adminRoutes";
 
 const routes = Router();
 
@@ -19,5 +20,6 @@ routes.use("/lands", verifyToken, landsRouter);
 routes.use("/forgot-password", forgotPasswordRoutes);
 routes.use("/interests", interestRoutes);
 routes.use("/transactions", verifyToken,transaction)
+routes.use("/admin", AdminRoute)
 
 export default routes;
