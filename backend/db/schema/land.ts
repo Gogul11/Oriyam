@@ -1,31 +1,35 @@
-import { pgTable, varchar, bigint, date, decimal, boolean } from "drizzle-orm/pg-core";
+import { pgTable, varchar, bigint, date, decimal, boolean, uuid, jsonb} from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const land = pgTable("land", {
-    land_id: varchar("land_id", { length: 255 }).notNull().primaryKey(),
-    user_id: varchar("user_id", { length: 255 }).notNull().references(() => users.user_id, {onDelete : "cascade"}),
+    landId: uuid("landId").defaultRandom().notNull().primaryKey(),
+    userId: uuid("userId").notNull().references(() => users.user_id, {onDelete : "cascade"}),
 
     title: varchar("title", { length: 255 }).notNull(),
     description: varchar("description", { length: 255 }).notNull(),
 
     area: varchar("area", { length: 20 }).notNull(),    
     unit: varchar("unit", { length: 255 }).notNull(),
-    rent_price_per_month: decimal("rent_price_per_month", { precision: 8, scale: 2 }).notNull(),
+    rentPricePerMonth: decimal("rentPricePerMonth", { precision: 8, scale: 2 }).notNull(),
 
-    soil_type: varchar("soil_type", { length: 255 }).notNull(),
-    water_source: varchar("water_source", { length: 255 }).notNull(),
+    soilType: varchar("soilType", { length: 255 }).notNull(),
+    waterSource: varchar("waterSource", { length: 255 }).notNull(),
 
-    availability_from: date("availability_from").notNull(),
-    availability_to: date("availability_to").notNull(),
+    availabilityFrom: date("availabilityFrom").notNull(),
+    availabilityTo: date("availabilityTo").notNull(),
 
-    location: varchar("location", { length: 255 }).notNull(),
-    latitude: decimal("latitude", { precision: 8, scale: 2 }),
-    longitude: decimal("longitude", { precision: 8, scale: 2 }),
-    coordinates: varchar("coordinates", { length: 255 }).unique(),
+    district : varchar("district", {length : 255}).notNull(),
+    subDistrict : varchar("subDistrict", {length : 255}).notNull(),
+    village : varchar("village", {length : 255}).notNull(),
+
+    coordinates: jsonb("coordinates").$type<
+    { latitude: number; longitude: number }[]
+  >(),
+    photos : varchar("photos", {length : 255}).array(),
 
     status: boolean("status").notNull().default(true),
     
-    created_at: date("created_at").notNull(),
-    updated_at: date("updated_at").notNull(),
+    created_at: date("created_at").notNull().defaultNow(),
+    updated_at: date("updated_at").notNull().defaultNow(),
     // land_photos: varchar("land_photos", { length: 1000 }).notNull(), // URLs stored as string
 });

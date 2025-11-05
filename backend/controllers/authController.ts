@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { registerUser, findUserByEmail } from "../services/authService";
+import { registerUser, findUserByMobile } from "../services/authService";
 
 export const registerController = async (req: Request, res: Response) => {
   try {
@@ -24,37 +24,30 @@ export const registerController = async (req: Request, res: Response) => {
 
 export const loginController = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+    const { mobile, password } = req.body;
+    if (!mobile || !password) {
+      return res.status(400).json({ message: "Mobile and password are required" });
     }
 
-    const user = await findUserByEmail(email);
+    const user = await findUserByMobile(mobile);
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid mobile or password" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid mobile or password" });
     }
 
     const token = jwt.sign(
-      { id: user.user_id, email: user.email },
+      { id: user.user_id },
       process.env.JWT_SECRET as string,
       { expiresIn: "1h" }
     );
 
-    return res.json({
+    return res.status(200).json({
       message: "Login successful",
-      token,
-      user: {
-        id: user.user_id,
-        username: user.username,
-        email: user.email,
-        mobile: user.mobile,
-      },
+      token
     });
   } catch (error: any) {
     console.error(error);

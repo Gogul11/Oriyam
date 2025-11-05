@@ -1,12 +1,25 @@
 import { Router } from "express";
 import authRoutes from "./authRoutes";
-const routes = Router()
+import landsRouter from "./landsRouter";
+import { verifyToken } from "../middleware/verify";
+import profileRoutes from "./profileRoutes";
+import forgotPasswordRoutes from "./forgotPasswordRoutes";
+import interestRoutes from "./interestRoutes";
+import transaction from "./transaction";
+import AdminRoute from "./adminRoutes";
+
+const routes = Router();
 
 routes.get("/", (req, res) => {
-    res.status(200).json({message : "success"})
-})
+    res.status(200).json({ message: "success" });
+});
 
-
-routes.use("/auth",authRoutes);
+routes.use("/profile", profileRoutes);
+routes.use("/auth", authRoutes);
+routes.use("/lands", verifyToken, landsRouter);
+routes.use("/forgot-password", forgotPasswordRoutes);
+routes.use("/interests", interestRoutes);
+routes.use("/transactions", verifyToken,transaction)
+routes.use("/admin", AdminRoute)
 
 export default routes;
