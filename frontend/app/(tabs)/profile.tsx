@@ -257,7 +257,7 @@ const ProfileScreen = () => {
                         {[
                             { label: "Email", value: profile.email, icon: "mail-outline" },
                             { label: "Mobile", value: profile.mobile, icon: "call-outline" },
-                            { label: "Age", value: profile.age.toString(), icon: "happy-outline" },
+{ label: "Age", value: profile.age ? profile.age.toString() : "N/A", icon: "happy-outline" },
                             { label: "DOB", value: new Date(profile.dateofbirth).toDateString(), icon: "calendar-outline" },
                             { label: "Gov ID Type", value: profile.gov_id_type, icon: "document-text-outline" },
                             {

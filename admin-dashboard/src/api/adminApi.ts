@@ -24,7 +24,9 @@ export const getLandByIdApi = async (landId: string) => {
   return res.data;
 };
 
-export const getUsersLand = async () => {
-  const res = await API.get("/getUsersLand");
+export const getUsersLand = async (userId : string) => {
+  const res = await API.post("/getUsersLand", {
+    userId : userId  
+  });
   return res.data;
 };

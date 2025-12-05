@@ -43,42 +43,103 @@ const LandDetails: React.FC = () => {
     }
   }, [landId]);
 
-  if (loading) return <div>Loading land details...</div>;
-  if (!land) return <div>Land not found.</div>;
+  if (loading)
+    return (
+      <h2 className="text-center text-2xl font-semibold text-green-600 animate-pulse mt-10">
+        Loading land details...
+      </h2>
+    );
+
+  if (!land)
+    return (
+      <h2 className="text-center text-xl text-gray-600 mt-10">
+        Land not found.
+      </h2>
+    );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>{land.title}</h1>
+    <div className="p-8 min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg border border-green-200 p-8">
+        {/* Title */}
+        <h1 className="text-3xl font-bold text-green-700 mb-6">
+          {land.title || "Land Details"}
+        </h1>
 
-      <p><strong>Land ID:</strong> {land.landId}</p>
-      <p><strong>Owner User ID:</strong> {land.userId}</p>
-      <p><strong>Description:</strong> {land.description}</p>
-      <p><strong>Location:</strong> {land.village}, {land.subDistrict}, {land.district}</p>
-      <p><strong>Area:</strong> {land.area} {land.unit}</p>
-      <p><strong>Rent Per Month:</strong> ₹{land.rentPricePerMonth}</p>
-      <p><strong>Soil Type:</strong> {land.soilType}</p>
-      <p><strong>Water Source:</strong> {land.waterSource}</p>
+        {/* Basic Info */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8 text-gray-800 mb-6">
+          <p>
+            <span className="font-medium text-gray-600">Land ID:</span>{" "}
+            {land.landId}
+          </p>
+          <p>
+            <span className="font-medium text-gray-600">Owner User ID:</span>{" "}
+            {land.userId}
+          </p>
+          <p>
+            <span className="font-medium text-gray-600">Location:</span>{" "}
+            {land.village || "N/A"}, {land.subDistrict || "N/A"},{" "}
+            {land.district || "N/A"}
+          </p>
+          <p>
+            <span className="font-medium text-gray-600">Area:</span>{" "}
+            {land.area || "N/A"} {land.unit || ""}
+          </p>
+          <p>
+            <span className="font-medium text-gray-600">Rent Per Month:</span>{" "}
+            ₹{land.rentPricePerMonth || "N/A"}
+          </p>
+          <p>
+            <span className="font-medium text-gray-600">Soil Type:</span>{" "}
+            {land.soilType || "N/A"}
+          </p>
+          <p>
+            <span className="font-medium text-gray-600">Water Source:</span>{" "}
+            {land.waterSource || "N/A"}
+          </p>
+          <p>
+            <span className="font-medium text-gray-600">Available From:</span>{" "}
+            {land.availabilityFrom || "N/A"}
+          </p>
+          <p>
+            <span className="font-medium text-gray-600">Available To:</span>{" "}
+            {land.availabilityTo || "N/A"}
+          </p>
+          {land.coordinates && (
+            <p>
+              <span className="font-medium text-gray-600">Coordinates:</span>{" "}
+              {land.coordinates.lat}, {land.coordinates.lng}
+            </p>
+          )}
+        </div>
 
-      <p><strong>Available From:</strong> {land.availabilityFrom}</p>
-      <p><strong>Available To:</strong> {land.availabilityTo}</p>
+        {/* Description */}
+        {land.description && (
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-green-700 mb-2">
+              Description
+            </h3>
+            <p className="text-gray-700 leading-relaxed">{land.description}</p>
+          </div>
+        )}
 
-      {land.coordinates && (
-        <p>
-          <strong>Coordinates:</strong> {land.coordinates.lat}, {land.coordinates.lng}
-        </p>
-      )}
-
-      <h3>Photos</h3>
-      <div style={{ display: "flex", gap: "10px" }}>
-        {land.photos?.map((photo, index) => (
-          <img
-            key={index}
-            src={`http://localhost:5000/uploads/${photo}`}
-            alt={`land-${index}`}
-            width={150}
-            style={{ borderRadius: "8px" }}
-          />
-        ))}
+        {/* Photos */}
+        {land.photos && land.photos.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold text-green-700 mb-4">
+              Photos
+            </h3>
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {land.photos.map((photo, index) => (
+                <img
+                  key={index}
+                  src={photo}
+                  alt={`land-${index}`}
+                  className="rounded-xl shadow-md border border-green-100 hover:shadow-xl transition-transform transform hover:scale-105 duration-300"
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
