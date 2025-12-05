@@ -1,48 +1,39 @@
-// src/layout/SidebarLayout.tsx
-
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import "./sidebar.css";
 
 const SidebarLayout: React.FC = () => {
+  const linkClasses = ({ isActive }: { isActive: boolean }) =>
+    `block px-4 py-2 rounded-md font-medium transition ${
+      isActive
+        ? "bg-lime-400 text-green-900 font-semibold"
+        : "text-green-200 hover:bg-green-400 hover:text-green-900"
+    }`;
+
   return (
-    <div className="layout-container">
-      <aside className="sidebar">
-        <h2 className="sidebar-title">Admin Panel</h2>
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <aside className="w-56 bg-green-800 text-white flex flex-col p-4 shadow-lg">
+        <h2 className="text-2xl font-bold text-lime-100 text-center mb-1">Oriyam</h2>
+        <p className="text-center text-green-300 mb-6">Admin Panel</p>
 
-        <nav>
-          <ul className="sidebar-menu">
-
+        <nav className="flex-1">
+          <ul className="space-y-2">
             <li>
-              <NavLink
-                to="/admin/getUsers"
-                className={({ isActive }) => (isActive ? "active-link" : "")}
-              >
+              <NavLink to="/admin/getUsers" className={linkClasses}>
                 Users
               </NavLink>
             </li>
-
             <li>
-              <NavLink
-                to="/admin/getLands"
-                className={({ isActive }) => (isActive ? "active-link" : "")}
-              >
+              <NavLink to="/admin/getLands" className={linkClasses}>
                 Lands
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink
-                to="/admin/getUsersLand"
-                className={({ isActive }) => (isActive ? "active-link" : "")}
-              >
-                Users & Lands
               </NavLink>
             </li>
           </ul>
         </nav>
       </aside>
-      <main className="content">
+
+      {/* Main Content */}
+      <main className="flex-1 bg-white m-4 p-6 rounded-lg shadow-md overflow-y-auto">
         <Outlet />
       </main>
     </div>

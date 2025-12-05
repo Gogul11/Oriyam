@@ -16,7 +16,7 @@ const boot = async () => {
   try {
   
     await startDb();
-    // await initCloudFlare()
+    await initCloudFlare()
 
     app.use(express.json())
     app.use(cors())

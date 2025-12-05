@@ -7,6 +7,6 @@ AdminRoute.get("/getUsers", getAllUser)
 AdminRoute.get("/getUser/:userId", getUserById)
 AdminRoute.get("/getLands", getAllLands)
 AdminRoute.get("/getLand/:landId", getLandById)
-AdminRoute.get("/getUsersLand", fetchLandByUserId)
+AdminRoute.post("/getUsersLand", fetchLandByUserId)
 
 export default AdminRoute;
